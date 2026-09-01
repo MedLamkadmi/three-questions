@@ -213,10 +213,13 @@
     </div>
   </div>
 
-  <!-- SCREEN: reveal secret -->
+  <!-- SCREEN: done (no reveal) -->
   <div id="s-reveal" class="screen">
     <div class="header"><span class="who" id="rev-who"></span></div>
-    <div class="reveal" id="secret-reveal"></div>
+    <p class="subtitle" style="font-size:17px;margin:14px 0;">All 3 answered! 💕</p>
+    <p style="text-align:center;color:var(--ink-soft);font-size:14px;margin-bottom:16px;">
+      The secret one stays secret — that's the magic. 😉
+    </p>
     <p class="subtitle">Now switch — <span id="rev-other"></span> answers next!</p>
     <div class="btnrow">
       <button class="btn ghost" onclick="backChoose()">New round</button>
@@ -350,13 +353,11 @@ function updateDots(){ document.querySelectorAll('#dots .dot-p').forEach((d,i)=>
 function renderQ(){
   $('qnum').textContent = qIndex+1;
   $('question-card').textContent = deck[qIndex].t;
-  $('next-btn').textContent = qIndex<2 ? "Next →" : "Reveal who asked it 🎀";
+  $('next-btn').textContent = qIndex<2 ? "Next →" : "Finish";
 }
 function nextQ(){
   if(qIndex<2){ qIndex++; updateDots(); renderQ(); }
-  else { // reveal
-    const s = deck.find(d=>d.secret);
-    $('secret-reveal').innerHTML = `<span class="tag">🎀 The secret question was:</span><br><br>"${s.t}"`;
+  else { // done, no reveal
     const other = who==='boy'?'Hello Kitty':'Boy Cat';
     $('rev-who').textContent = other + " answers next";
     $('rev-other').textContent = other;
