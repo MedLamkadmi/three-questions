@@ -3,178 +3,234 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3 Questions</title>
+<title>3 Questions 🎀</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ---------- HELLO KITTY SOFT STYLE ---------- */
+  /* ============ PIXEL AUTUMN HELLO KITTY STYLE ============ */
   :root{
-    --pink:#ffb7c9;
-    --pink-dark:#f48fb1;
-    --pink-soft:#ffe3ec;
-    --cream:#fff8f2;
-    --blue:#b3d8ff;
-    --blue-dark:#7fb3e8;
-    --blue-soft:#e3f0ff;
-    --ink:#5a4a52;
-    --ink-soft:#8a7882;
-    --card:#ffffff;
+    --pink:#f7a8bb;
+    --pink-dark:#e77a97;
+    --pink-soft:#ffdce6;
+    --blue:#86b7e0;
+    --blue-dark:#5f95c9;
+    --leaf:#e2632c;
+    --amber:#e8a33d;
+    --gold:#eec86b;
+    --cream:#fdf3e0;
+    --brown:#5c3c2a;
+    --brown-soft:#8a6a50;
+    --ink:#4a3830;
+    --ink-soft:#9a7b6a;
+    --card:#fffdf6;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
   body{
-    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
-    background:linear-gradient(180deg,#ffeef5 0%,#fde3ef 40%,#e3f0ff 100%);
+    font-family:'Pixelify Sans',system-ui,sans-serif;
+    background:var(--cream);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(226,99,44,.04) 0 4px, transparent 4px 8px),
+      repeating-linear-gradient(90deg, rgba(226,99,44,.04) 0 4px, transparent 4px 8px),
+      linear-gradient(180deg,#fdf6e7 0%,#fbe9d4 55%,#f3d3c3 100%);
     min-height:100vh;color:var(--ink);
     display:flex;flex-direction:column;align-items:center;
     padding:20px 16px 40px;
   }
-  .wrap{max-width:440px;width:100%;}
+  #bg-leaves{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+  .leaf{position:absolute;top:-60px;shape-rendering:crispEdges;image-rendering:pixelated;
+    animation:fall var(--dur) linear var(--delay) infinite;}
+  @keyframes fall{
+    0%{transform:translate(var(--sway),-60px) rotate(0deg);}
+    25%{transform:translate(calc(var(--sway)*-1),28vh) rotate(90deg);}
+    50%{transform:translate(var(--sway),55vh) rotate(180deg);}
+    75%{transform:translate(calc(var(--sway)*-1),82vh) rotate(270deg);}
+    100%{transform:translate(var(--sway),110vh) rotate(540deg);}
+  }
+  .wrap{position:relative;z-index:1;max-width:440px;width:100%;}
 
-  /* bubbly title */
   h1{
-    font-size:30px;font-weight:800;letter-spacing:.5px;
-    text-align:center;
-    background:linear-gradient(90deg,#f0629a,#f48fb1,#a2c8f0);
+    font-family:'Press Start 2P',monospace;
+    font-size:20px;line-height:1.5;text-align:center;
+    background:linear-gradient(180deg,#e2632c,#e77a97 60%,#a25b9e);
     -webkit-background-clip:text;background-clip:text;color:transparent;
-    margin:14px 0 4px;
+    margin:16px 0 8px;letter-spacing:1px;
+    filter:drop-shadow(2px 2px 0 rgba(255,255,255,.7));
   }
-  .subtitle{text-align:center;color:var(--ink-soft);font-size:14px;margin-bottom:18px;}
+  .subtitle{text-align:center;color:var(--ink-soft);font-size:16px;font-weight:600;margin-bottom:18px;}
 
-  /* character cards */
-  .characters{display:flex;gap:14px;justify-content:center;margin:8px 0 22px;}
-  .char{
-    background:var(--card);border-radius:24px;padding:18px 14px;text-align:center;
-    box-shadow:0 8px 20px rgba(240,98,154,.15);cursor:pointer;
-    border:3px solid transparent;transition:.2s;flex:1;max-width:160px;
-  }
-  .char:hover{transform:translateY(-2px);}
-  .char.selected{border-color:var(--pink-dark);}
-  .char.blue.selected{border-color:var(--blue-dark);}
-  .char.blue{box-shadow:0 8px 20px rgba(127,179,232,.18);}
-
-  /* kawaii face */
-  .face{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;position:relative;background:#fff;}
-  .face.pink{outline:3px solid var(--pink);}
-  .face.blue{outline:3px solid var(--blue);}
-  .ear{position:absolute;width:20px;height:20px;border-radius:50%;top:-2px;background:#fff;}
-  .ear.l{left:6px;}.ear.r{right:6px;}
-  .face.pink .ear{outline:3px solid var(--pink);}
-  .face.blue .ear{outline:3px solid var(--blue);}
-  .eye{position:absolute;top:38px;width:5px;height:8px;background:var(--ink);border-radius:50%;}
-  .eye.l{left:26px;}.eye.r{right:26px;}
-  .nose{position:absolute;top:48px;left:50%;transform:translateX(-50%);width:8px;height:6px;background:var(--pink-dark);border-radius:50%;}
-  .dot{position:absolute;top:60px;width:5px;height:5px;border-radius:50%;background:var(--ink);opacity:.85;}
-  .dot.whisker1{left:8px;}.dot.whisker2{left:22px;}.dot.whisker3{right:8px;}.dot.whisker4{right:22px;}
-  .bow{position:absolute;top:52px;left:50%;transform:translateX(-50%);font-size:18px;animation:bob 2.4s ease-in-out infinite;}
-  .char.blue .bow{display:none;}
-  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-3px);}}
-  .char .name{font-weight:700;font-size:15px;}
-  .char .role{font-size:12px;color:var(--ink-soft);margin-top:2px;}
-
+  /* ============ PIXEL BUTTONS ============ */
   .btn{
-    display:block;width:100%;border:none;cursor:pointer;
-    background:linear-gradient(90deg,#f48fb1,#f0629a);
-    color:#fff;font-weight:700;font-size:17px;
-    padding:15px;border-radius:50px;letter-spacing:.3px;
-    box-shadow:0 8px 18px rgba(240,98,154,.35);transition:.2s;
+    display:block;width:100%;border:4px solid var(--brown);cursor:pointer;
+    background:var(--pink-dark);color:#fff;
+    font-family:'Press Start 2P',monospace;font-size:12px;
+    padding:16px;letter-spacing:.5px;text-transform:uppercase;
+    box-shadow:4px 4px 0 rgba(92,60,42,.85);transition:.1s;
   }
-  .btn:active{transform:scale(.98);}
-  .btn.blue{background:linear-gradient(90deg,#7fb3e8,#4f93d0);box-shadow:0 8px 18px rgba(79,147,208,.35);}
-  .btn.ghost{background:#fff;color:var(--pink-dark);box-shadow:none;border:2px solid var(--pink-soft);}
+  .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 rgba(92,60,42,.85);}
+  .btn.blue{background:var(--blue-dark);}
+  .btn.ghost{background:#fff;color:var(--ink);box-shadow:4px 4px 0 rgba(92,60,42,.7);}
+  .btn.small{font-size:9px;padding:12px;}
 
-  .screen{display:none;animation:in .3s ease;}
+  .screen{display:none;animation:in .25s steps(4);}
   .screen.active{display:block;}
-  @keyframes in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  @keyframes in{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
 
+  /* ============ CARDS / BOXES ============ */
   .card{
-    background:var(--card);border-radius:24px;padding:22px;
-    box-shadow:0 8px 20px rgba(240,98,154,.12);margin:10px 0;
+    background:var(--card);border:4px solid var(--brown);padding:20px;
+    box-shadow:4px 4px 0 rgba(92,60,42,.2);margin:12px 0;
   }
-  .card p.label{font-size:12px;font-weight:700;color:var(--pink-dark);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
-  .card p{font-size:17px;line-height:1.5;}
+  .card p.label{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--pink-dark);margin-bottom:10px;line-height:1.6;}
+  .card p{font-size:16px;line-height:1.5;font-weight:500;}
 
-  /* category chips */
+  /* ============ PIXEL BAG (intro) ============ */
+  .bag-stage{display:flex;flex-direction:column;align-items:center;margin:18px 0 10px;}
+  .pbag{width:150px;height:180px;position:relative;filter:drop-shadow(4px 6px 0 rgba(92,60,42,.25));}
+  .pbag .handle{position:absolute;top:6px;width:16px;height:34px;background:var(--pink-dark);border:4px solid var(--brown);z-index:2;}
+  .pbag .handle.l{left:40px;}
+  .pbag .handle.r{right:40px;}
+  .pbag .body{position:absolute;top:30px;left:14px;right:14px;height:140px;background:var(--pink);border:4px solid var(--brown);}
+  .pbag .fold{position:absolute;top:30px;left:14px;right:14px;height:22px;background:var(--pink-soft);border:4px solid var(--brown);border-bottom:none;z-index:3;}
+  .pbag .heart{position:absolute;left:50%;top:86px;transform:translateX(-50%);width:26px;height:26px;background:var(--pink-dark);z-index:4;animation:beat 1s steps(2) infinite;}
+  @keyframes beat{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.2);}}
+  .pbag .tag{position:absolute;top:132px;left:50%;transform:translateX(-50%);background:#fff;border:3px solid var(--brown);color:var(--ink);font-family:'Press Start 2P',monospace;font-size:8px;padding:6px 8px;z-index:4;text-align:center;}
+
+  /* ============ PIXEL FACES ============ */
+  .px{
+    position:relative;width:96px;height:96px;background:#fff;
+    border:4px solid var(--brown);box-shadow:4px 4px 0 rgba(92,60,42,.25);
+    margin:0 auto;image-rendering:pixelated;
+  }
+  .px .ne{position:absolute;width:26px;height:26px;background:#fff;border:4px solid var(--brown);top:-14px;}
+  .px .ne.l{left:-8px;}
+  .px .ne.r{right:-8px;}
+  .px .inne{position:absolute;width:10px;height:10px;background:#fff;border:3px solid var(--brown);top:2px;left:2px;box-sizing:border-box;}
+  .px.pink .inne{background:var(--pink);}
+  .px.blue .inne{background:var(--blue);}
+  .px .eye{position:absolute;top:34px;width:8px;height:12px;background:var(--brown);}
+  .px .eye.l{left:18px;}
+  .px .eye.r{right:18px;}
+  .px .nose{position:absolute;top:48px;left:50%;transform:translateX(-50%);width:8px;height:7px;background:var(--pink-dark);border:2px solid var(--brown);}
+  .px .wk{position:absolute;top:58px;width:5px;height:5px;background:var(--brown);}
+  .px .wk1{left:6px;}.px .wk2{left:18px;}.px .wk3{left:30px;}
+  .px .wk4{right:6px;}.px .wk5{right:18px;}.px .wk6{right:30px;}
+  .px .bow{position:absolute;top:4px;right:-30px;width:30px;height:26px;z-index:5;}
+  .px .bow .l{position:absolute;left:0;top:4px;width:12px;height:18px;background:var(--pink-dark);border:3px solid var(--brown);transform:rotate(22deg);}
+  .px .bow .r{position:absolute;right:0;top:4px;width:12px;height:18px;background:var(--pink-dark);border:3px solid var(--brown);transform:rotate(-22deg);}
+  .px .bow .c{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:8px;height:8px;background:var(--pink-dark);border:3px solid var(--brown);z-index:2;}
+  .px .cap{position:absolute;top:-16px;left:-12px;right:-12px;height:30px;background:var(--blue-dark);border:4px solid var(--brown);}
+  .px .cap .brim{position:absolute;left:-8px;bottom:-10px;width:40px;height:10px;background:var(--blue);border:4px solid var(--brown);}
+
+  /* ============ CHARACTER CARDS ============ */
+  .characters{display:flex;gap:14px;justify-content:center;margin:8px 0 22px;}
+  .char{background:var(--card);border:4px solid var(--brown);padding:20px 14px;text-align:center;box-shadow:4px 4px 0 rgba(92,60,42,.25);cursor:pointer;transition:.1s;flex:1;max-width:170px;}
+  .char:hover{transform:translate(-2px,-2px);}
+  .char.selected{background:var(--pink-soft);box-shadow:8px 8px 0 var(--pink-dark);}
+  .char.blue.selected{background:#dcebf8;box-shadow:8px 8px 0 var(--blue-dark);}
+  .char .name{font-family:'Press Start 2P',monospace;font-size:9px;font-weight:400;margin-top:14px;}
+  .char .role{font-size:13px;color:var(--ink-soft);margin-top:6px;font-weight:600;}
+
+  /* ============ CHIPS ============ */
   .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0;}
-  .chip{
-    padding:12px 18px;border-radius:50px;background:#fff;font-weight:700;
-    border:2px solid var(--pink-soft);cursor:pointer;transition:.15s;font-size:15px;color:var(--ink);
-  }
-  .chip.selected{background:var(--pink);border-color:var(--pink-dark);color:#5a3038;}
+  .chip{padding:12px 14px;background:#fff;border:3px solid var(--brown);box-shadow:3px 3px 0 rgba(92,60,42,.2);cursor:pointer;transition:.1s;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--ink);}
+  .chip.selected{background:var(--pink-dark);color:#fff;box-shadow:5px 5px 0 var(--brown);}
 
-  input[type=text]{
-    width:100%;padding:14px;border-radius:16px;border:2px solid var(--pink-soft);
-    font-size:16px;background:#fffbfe;color:var(--ink);outline:none;
-  }
+  input[type=text]{width:100%;padding:14px;border:4px solid var(--brown);box-shadow:inset 2px 2px 0 rgba(92,60,42,.2);font-size:16px;background:#fff;color:var(--ink);outline:none;font-family:'Pixelify Sans',sans-serif;font-weight:600;}
   input[type=text]:focus{border-color:var(--pink-dark);}
 
-  .qitem{
-    background:var(--pink-soft);border-radius:16px;padding:14px;margin:10px 0;
-    font-size:16px;line-height:1.5;
-  }
-  .qitem .num{font-weight:800;color:var(--pink-dark);margin-right:6px;}
-  .pool-item{background:#fff;border:2px solid var(--pink-soft);border-radius:14px;padding:12px;margin:8px 0;font-size:15px;line-height:1.5;cursor:pointer;transition:.15s;color:var(--ink);}
-  .pool-item.used{opacity:.38;cursor:not-allowed;text-decoration:line-through;}
-  .pool-item.sel{border-color:var(--pink-dark);background:var(--pink-soft);font-weight:600;}
+  .qitem{background:var(--pink-soft);border:3px solid var(--brown);padding:14px;margin:10px 0;font-size:16px;line-height:1.5;font-weight:600;}
+  .qitem .num{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--pink-dark);margin-right:8px;}
+
+  .pool-item{background:#fff;border:3px solid #e3c8b0;box-shadow:3px 3px 0 rgba(92,60,42,.12);padding:12px;margin:8px 0;font-size:15px;line-height:1.5;cursor:pointer;transition:.1s;font-weight:500;}
+  .pool-item.used{opacity:.4;cursor:not-allowed;text-decoration:line-through;}
+  .pool-item.sel{border-color:var(--brown);background:var(--pink-soft);font-weight:700;box-shadow:0 0 0 3px var(--pink-dark) inset;}
 
   .progress-dots{display:flex;gap:8px;justify-content:center;margin:14px 0;}
-  .dot-p{width:12px;height:12px;border-radius:50%;background:#ffd9e4;transition:.2s;}
-  .dot-p.active{background:var(--pink-dark);transform:scale(1.2);}
+  .dot-p{width:14px;height:14px;background:#f3d6bb;border:2px solid var(--brown);transition:.2s;}
+  .dot-p.active{background:var(--pink-dark);transform:scale(1.25);}
 
-  .reveal{
-    background:linear-gradient(90deg,#ffe3ec,#fff3f8);
-    border-left:5px solid var(--pink-dark);border-radius:16px;padding:16px;
-    font-size:16px;line-height:1.5;margin:14px 0;
-  }
-  .reveal .tag{font-weight:800;color:var(--pink-dark);}
+  .reveal{background:var(--pink-soft);border:3px solid var(--brown);border-left:8px solid var(--pink-dark);padding:16px;font-size:16px;line-height:1.5;margin:14px 0;}
+  .reveal .tag{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--pink-dark);}
+
   .btnrow{display:flex;gap:10px;margin-top:14px;}
   .btnrow .btn{flex:1;}
 
   .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  .header .who{font-weight:800;font-size:15px;}
-  .mini-switch{font-size:13px;color:var(--blue-dark);cursor:pointer;font-weight:700;background:none;border:none;}
-  .footnote{text-align:center;color:#c9a2b0;font-size:12px;margin-top:24px;}
-  .hero-gif{display:block;width:110px;height:auto;margin:10px auto 6px;border-radius:24px;animation:float 3s ease-in-out infinite;}
-  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  .header .who{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--ink);}
+  .mini-switch{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--blue-dark);cursor:pointer;background:none;border:3px solid var(--blue-dark);padding:6px 8px;}
+  .footnote{text-align:center;color:#c08a6a;font-size:12px;margin-top:24px;font-weight:600;}
+
+  /* ============ HIGH-FIVE STAGE ============ */
+  .stage{background:var(--card);border:4px solid var(--brown);box-shadow:4px 4px 0 rgba(92,60,42,.25);padding:26px 14px;margin:20px 0;display:flex;align-items:center;justify-content:center;gap:2px;}
+  .stage .cat{flex:none;}
+  .stage .px{width:70px;height:70px;}
+  .stage .px .ne{width:20px;height:20px;top:-12px;}
+  .paw{width:26px;height:22px;background:#fff;border:4px solid var(--brown);z-index:6;}
+  .paw.l{animation:hl 1.2s steps(4) infinite;}
+  .paw.r{animation:hr 1.2s steps(4) infinite;}
+  @keyframes hl{0%,30%{transform:translateX(0) rotate(8deg);}45%,70%{transform:translateX(16px) rotate(0deg);}85%,100%{transform:translateX(0) rotate(8deg);}}
+  @keyframes hr{0%,30%{transform:translateX(0) rotate(-8deg);}45%,70%{transform:translateX(-16px) rotate(0deg);}85%,100%{transform:translateX(0) rotate(-8deg);}}
+  .star{font-family:'Press Start 2P',monospace;color:var(--amber);font-size:22px;padding:0 4px;animation:spark 1.2s steps(2) infinite;text-shadow:2px 2px 0 var(--brown);}
+  @keyframes spark{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.7);}}
+  .high-title{font-family:'Press Start 2P',monospace;font-size:13px;text-align:center;color:var(--pink-dark);margin:8px 0 2px;line-height:1.8;}
+  #hf-gif{width:100%;max-width:320px;margin:0 auto;display:none;image-rendering:pixelated;border:4px solid var(--brown);box-shadow:4px 4px 0 rgba(92,60,42,.25);}
 </style>
 </head>
 <body>
+<div id="bg-leaves"></div>
 <div class="wrap">
 
-  <img class="hero-gif" src="kitty.gif" alt="">
+  <h1>3 QUESTIONS</h1>
+  <p class="subtitle">Two + one secret. Autumn coziness.</p>
 
-  <h1>3 Questions</h1>
-  <p class="subtitle">Two random questions + one secret. Read, answer, enjoy.</p>
+  <!-- ============ SCREEN 0: OPEN THE BAG ============ -->
+  <div id="s-bag" class="screen active">
+    <div class="bag-stage">
+      <div class="pbag">
+        <div class="handle l"></div><div class="handle r"></div>
+        <div class="fold"></div>
+        <div class="body"></div>
+        <div class="heart"></div>
+        <div class="tag">🎀 ?</div>
+      </div>
+    </div>
+    <p class="subtitle" style="font-size:18px;margin:14px 0 6px;">Open the bag</p>
+    <p class="subtitle" style="font-size:13px;">A surprise is waiting inside...</p>
+    <button class="btn" style="margin-top:18px;" onclick="openBag()">Open the bag</button>
+  </div>
 
-  <!-- SCREEN: choose character -->
-  <div id="s-choose" class="screen active">
+  <!-- ============ SCREEN 1: HIGH FIVE ============ -->
+  <div id="s-fist" class="screen">
+    <p class="high-title">★ HIGH FIVE ★</p>
+    <p class="subtitle" style="font-size:14px;">The kitties agreed. Now you should too.</p>
+    <img id="hf-gif" src="highfive.gif" alt="high five">
+    <div class="stage" id="stage-pixel">
+      <div class="cat"><div class="px blue"><div class="ne l"><div class="inne"></div></div><div class="ne r"><div class="inne"></div></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="wk wk1"></div><div class="wk wk2"></div><div class="wk wk3"></div><div class="wk wk4"></div><div class="wk wk5"></div><div class="wk wk6"></div><div class="cap"><div class="brim"></div></div></div></div>
+      <div class="paw l"></div><div class="star">✋</div><div class="paw r"></div>
+      <div class="cat"><div class="px pink"><div class="ne l"><div class="inne"></div></div><div class="ne r"><div class="inne"></div></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="wk wk1"></div><div class="wk wk2"></div><div class="wk wk3"></div><div class="wk wk4"></div><div class="wk wk5"></div><div class="wk wk6"></div><div class="bow"><div class="l"></div><div class="r"></div><div class="c"></div></div></div></div>
+    </div>
+    <button class="btn blue" onclick="startGame()">Let's go ▶</button>
+  </div>
+
+  <!-- ============ SCREEN 2: CHOOSE CHARACTER ============ -->
+  <div id="s-choose" class="screen">
     <p class="subtitle">Who's answering first?</p>
     <div class="characters">
       <div class="char blue" data-who="boy" onclick="pick('boy')">
-        <div class="face blue">
-          <div class="ear l"></div><div class="ear r"></div>
-          <div class="eye l"></div><div class="eye r"></div>
-          <div class="nose"></div>
-          <div class="dot whisker1"></div><div class="dot whisker2"></div>
-          <div class="dot whisker3"></div><div class="dot whisker4"></div>
-        </div>
-        <div class="name">Boy Cat</div>
-        <div class="role" id="role-boy">The one answering</div>
+        <div class="px blue"><div class="ne l"><div class="inne"></div></div><div class="ne r"><div class="inne"></div></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="wk wk1"></div><div class="wk wk2"></div><div class="wk wk3"></div><div class="wk wk4"></div><div class="wk wk5"></div><div class="wk wk6"></div><div class="cap"><div class="brim"></div></div></div>
+        <div class="name">BOY CAT</div>
+        <div class="role">the one answering</div>
       </div>
       <div class="char" data-who="girl" onclick="pick('girl')">
-        <div class="face pink">
-          <div class="ear l"></div><div class="ear r"></div>
-          <div class="eye l"></div><div class="eye r"></div>
-          <div class="nose"></div>
-          <div class="dot whisker1"></div><div class="dot whisker2"></div>
-          <div class="dot whisker3"></div><div class="dot whisker4"></div>
-          <div class="bow">🎀</div>
-        </div>
-        <div class="name">Hello Kitty</div>
-        <div class="role" id="role-girl">The one answering</div>
+        <div class="px pink"><div class="ne l"><div class="inne"></div></div><div class="ne r"><div class="inne"></div></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="wk wk1"></div><div class="wk wk2"></div><div class="wk wk3"></div><div class="wk wk4"></div><div class="wk wk5"></div><div class="wk wk6"></div><div class="bow"><div class="l"></div><div class="r"></div><div class="c"></div></div></div>
+        <div class="name">HELLO KITTY</div>
+        <div class="role">the one answering</div>
       </div>
     </div>
     <button class="btn" onclick="goSetup()">Continue</button>
   </div>
 
-  <!-- SCREEN: choose category -->
+  <!-- ============ SCREEN 3: CATEGORY ============ -->
   <div id="s-cat" class="screen">
     <div class="header">
       <span class="who" id="cat-who"></span>
@@ -185,7 +241,7 @@
     <button class="btn" onclick="goSecret()" style="margin-top:6px;">Choose questions</button>
   </div>
 
-  <!-- SCREEN: her secret question -->
+  <!-- ============ SCREEN 4: PICK + SECRET ============ -->
   <div id="s-secret" class="screen">
     <div class="header">
       <span class="who" id="sec-who"></span>
@@ -193,21 +249,19 @@
     </div>
     <div class="card">
       <p class="label">Your 2 questions — <span id="sel-count">0</span> selected</p>
-      <p style="font-size:14px;color:var(--ink-soft);margin-bottom:10px;">
+      <p style="font-size:14px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;">
         Tap questions below to pick 2, or let the game surprise you.
       </p>
       <div id="sec-questions" style="margin-bottom:10px;"></div>
-      <div class="btnrow">
-        <button class="btn ghost" onclick="surprisePick()" style="flex:1;font-size:14px;">Shuffle ↻ (no repeats)</button>
-      </div>
+      <button class="btn ghost small" onclick="surprisePick()">Shuffle ↻ (no repeats)</button>
     </div>
     <div class="card" id="pool-holder">
       <p class="label">Available questions</p>
       <div id="pool"></div>
     </div>
-    <div class="card" style="border:2px dashed var(--pink);">
+    <div class="card" style="border:4px dashed var(--pink-dark);">
       <p class="label">Secret question (private)</p>
-      <p style="font-size:14px;color:var(--ink-soft);margin-bottom:10px;">
+      <p style="font-size:14px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;">
         The shy one types their own question here. Nobody sees it until shuffle.
       </p>
       <input type="text" id="sec-input" placeholder="Type a question... (kept hidden)">
@@ -215,25 +269,25 @@
     <button class="btn" onclick="goPlay()" style="margin-top:12px;">Shuffle &amp; play</button>
   </div>
 
-  <!-- SCREEN: play / reveal one by one -->
+  <!-- ============ SCREEN 5: PLAY ============ -->
   <div id="s-play" class="screen">
     <div class="header">
       <span class="who" id="play-who"></span>
       <button class="mini-switch" onclick="restart()">↻ restart</button>
     </div>
     <div class="progress-dots" id="dots"></div>
-    <div class="card" style="min-height:150px;display:flex;flex-direction:column;justify-content:center;">
+    <div class="card" style="min-height:170px;display:flex;flex-direction:column;justify-content:center;">
       <p class="label">Question <span id="qnum"></span> of 3 → read it aloud to your partner</p>
-      <p id="question-card"></p>
+      <p id="question-card" style="font-size:17px;"></p>
       <button class="btn" id="next-btn" style="margin-top:18px;" onclick="nextQ()">Next →</button>
     </div>
   </div>
 
-  <!-- SCREEN: done (no reveal) -->
+  <!-- ============ SCREEN 6: DONE (no reveal) ============ -->
   <div id="s-reveal" class="screen">
     <div class="header"><span class="who" id="rev-who"></span></div>
-    <p class="subtitle" style="font-size:17px;margin:14px 0;">All 3 answered! 💕</p>
-    <p style="text-align:center;color:var(--ink-soft);font-size:14px;margin-bottom:16px;">
+    <p class="subtitle" style="font-size:18px;margin:14px 0;">All 3 answered! 💕</p>
+    <p style="text-align:center;color:var(--ink-soft);font-size:14px;font-weight:600;margin-bottom:16px;">
       The secret one stays secret — that's the magic. 😉
     </p>
     <p class="subtitle">Now switch — <span id="rev-other"></span> answers next!</p>
@@ -247,6 +301,49 @@
 </div>
 
 <script>
+/* ---------- FALLING MAPLE LEAVES ---------- */
+(function(){
+  const SPRITE = [
+    "....X....",
+    "...XXX...",
+    "..X...X..",
+    ".**..**..",
+    "**.*.*.**",
+    ".**..**..",
+    "..X...X..",
+    "...*.*...",
+    ".**.*.**.",
+    ".........",
+    "........."
+  ];
+  const MAP = {X:'#e2632c', '*':'#e8a33d'};
+  const AREA = document.getElementById('bg-leaves');
+  const COLORS = ['#e2632c','#d9491f','#e8a33d','#cf5b22','#eec86b'];
+  function spriteSVG(color){
+    const R = []; R.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 11" preserveAspectRatio="none">');
+    for(let y=0;y<SPRITE.length;y++){const row=SPRITE[y];
+      for(let x=0;x<row.length;x++){const p=row[x];
+        if(p==='X'||p==='*') R.push('<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+color+'"/>');
+      }}
+    R.push('</svg>');
+    return R.join('');
+  }
+  const N = window.innerWidth > 600 ? 16 : 12;
+  for(let i=0;i<N;i++){
+    const d = document.createElement('div');
+    d.className='leaf';
+    d.style.left = (Math.random()*100).toFixed(1)+'%';
+    const w = 20+Math.random()*22;
+    d.style.width = w+'px';
+    d.style.setProperty('--dur',(9+Math.random()*8).toFixed(1)+'s');
+    d.style.setProperty('--delay',(-Math.random()*16).toFixed(1)+'s');
+    d.style.setProperty('--sway',(20+Math.random()*70).toFixed(0)+'px');
+    d.style.opacity = (0.5+Math.random()*0.5).toFixed(2);
+    d.innerHTML = spriteSVG(COLORS[Math.floor(Math.random()*COLORS.length)]);
+    AREA.appendChild(d);
+  }
+})();
+
 /* ---------- QUESTION BANK (English) ---------- */
 const QBANK = {
   Fun: [
@@ -296,23 +393,36 @@ const QBANK = {
     "If you could know one thing about someone's feelings for you, what would it be?",
     "What's a romantic gesture that never gets old to you?",
     "What does 'being serious with someone' actually look like to you?"
-  ],
-  };
+  ]
+};
 const CATS = ["Fun","Personal","Deep","Romantic"];
 
 /* ---------- STATE ---------- */
-let who = "boy";            // current answerer
+let who = "boy";
 let cat = "Fun";
-let secQuestions = [];      // 2 picked random
-let secretQ = "";           // hidden question
-let deck = [];              // 3 shuffled = secQuestions + secret
+let secQuestions = [];
+let secretQ = "";
+let deck = [];
 let qIndex = 0;
 
 const $ = id => document.getElementById(id);
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');}
 
+/* ---------- INTRO ---------- */
+function openBag(){
+  // if the high-five GIF exists, show it instead of the pixel stage
+  const g = document.getElementById('hf-gif');
+  if(g && g.complete && g.naturalWidth>0){ g.style.display='block'; const s=document.getElementById('stage-pixel'); if(s) s.style.display='none'; }
+  show('s-fist');
+}
+function startGame(){ pick('boy'); show('s-choose'); }
+
 /* ---------- CHOOSE ---------- */
-function pick(w){ who = w; document.querySelectorAll('.char').forEach(c=>c.classList.remove('selected')); document.querySelector(`.char[data-who="${w}"]`).classList.add('selected'); }
+function pick(w){
+  who = w;
+  document.querySelectorAll('.char').forEach(c=>c.classList.remove('selected'));
+  document.querySelector(`.char[data-who="${w}"]`).classList.add('selected');
+}
 function backChoose(){ show('s-choose'); }
 
 /* ---------- CATEGORY ---------- */
@@ -323,7 +433,7 @@ function goSetup(){
   show('s-cat');
 }
 function renderChips(){
-  $('chips').innerHTML = CATS.map(c=>`<div class="chip ${c===cat?'selected':''}" onclick="setCat('${c}')">${c}</div>`).join('') 
+  $('chips').innerHTML = CATS.map(c=>`<div class="chip ${c===cat?'selected':''}" onclick="setCat('${c}')">${c}</div>`).join('')
     + `<div class="chip ${cat==='Mix'?'selected':''}" onclick="setCat('Mix')">Mix</div>`;
 }
 function setCat(c){ cat=c; renderChips(); }
@@ -341,7 +451,6 @@ function poolFor(cat){
 function freshPool(pool){
   const avail = pool.filter(q=>!USED.has(q));
   if(avail.length) return avail;
-  // all used → fresh start
   USED.clear(); _saveUsed(USED); return pool.slice();
 }
 function surprisePick(){
@@ -353,7 +462,6 @@ function surprisePick(){
   renderPicked();
 }
 function surprisePickForce(){
-  // if fewer than 2 remain, reset used entirely
   USED.clear(); _saveUsed(USED);
   const pool = poolFor(cat);
   const idxs = [];
@@ -388,7 +496,7 @@ function renderPool(){
 function toggleSel(i){
   const pool = poolFor(cat);
   const q = pool[i];
-  if(USED.has(q) && !secQuestions.includes(q)) return; // already asked before
+  if(USED.has(q) && !secQuestions.includes(q)) return;
   if(secQuestions.includes(q)){ secQuestions = secQuestions.filter(x=>x!==q); }
   else if(secQuestions.length<2){ secQuestions.push(q); }
   renderPicked(); renderPool();
@@ -403,11 +511,9 @@ function goPlay(){
   if(secQuestions.length!==2){ surprisePick(); }
   secretQ = $('sec-input').value.trim();
   if(!secretQ){ secretQ = "(no secret added — just the 2 questions)"; }
-  // mark used (global, no repeats across rounds/categories)
   secQuestions.forEach(q=>USED.add(q));
   _saveUsed(USED);
   deck = [...secQuestions.map(q=>({t:q,secret:false})), {t:secretQ, secret:true}];
-  // shuffle
   for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
   qIndex = 0;
   renderDots();
@@ -424,7 +530,7 @@ function renderQ(){
 }
 function nextQ(){
   if(qIndex<2){ qIndex++; updateDots(); renderQ(); }
-  else { // done, no reveal
+  else {
     const other = who==='boy'?'Hello Kitty':'Boy Cat';
     $('rev-who').textContent = other + " answers next";
     $('rev-other').textContent = other;
@@ -437,7 +543,6 @@ function restart(){ goPlay(); }
 function setWho(id){
   const n = who==='boy' ? "Boy Cat" : "Hello Kitty";
   $(id).textContent = n + " answers";
-  const btn = document.querySelector('#'+id).closest('.screen').querySelector('.btn');
 }
 </script>
 </body>
