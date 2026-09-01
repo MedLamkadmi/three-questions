@@ -133,6 +133,7 @@
   .char.blue.selected{background:#dcebf8;border-color:var(--blue-dark);box-shadow:0 0 0 3px var(--blue-dark),0 14px 24px rgba(95,149,201,.25);}
   .char .name{font-family:'Press Start 2P',monospace;font-size:9px;font-weight:400;margin-top:14px;}
   .char .role{font-size:14px;color:var(--ink-soft);margin-top:6px;font-weight:600;}
+  .char img.char-pic{width:100%;max-width:150px;height:170px;object-fit:contain;margin:0 auto;display:block;image-rendering:auto;}
 
   /* ============ CHIPS ============ */
   .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0;}
@@ -227,12 +228,12 @@
     <p class="subtitle">Who's answering first?</p>
     <div class="characters">
       <div class="char blue" data-who="boy" onclick="pick('boy')">
-        <div class="px blue"><div class="ne l"><div class="inne"></div></div><div class="ne r"><div class="inne"></div></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="wk wk1"></div><div class="wk wk2"></div><div class="wk wk3"></div><div class="wk wk4"></div><div class="wk wk5"></div><div class="wk wk6"></div><div class="cap"><div class="brim"></div></div></div>
+        <img class="char-pic" src="boy.png" alt="Boy Cat">
         <div class="name">BOY CAT</div>
         <div class="role">the one answering</div>
       </div>
       <div class="char" data-who="girl" onclick="pick('girl')">
-        <div class="px pink"><div class="ne l"><div class="inne"></div></div><div class="ne r"><div class="inne"></div></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="wk wk1"></div><div class="wk wk2"></div><div class="wk wk3"></div><div class="wk wk4"></div><div class="wk wk5"></div><div class="wk wk6"></div><div class="bow"><div class="l"></div><div class="r"></div><div class="c"></div></div></div>
+        <img class="char-pic" src="girl.png" alt="Hello Kitty">
         <div class="name">HELLO KITTY</div>
         <div class="role">the one answering</div>
       </div>
