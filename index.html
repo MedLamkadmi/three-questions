@@ -110,6 +110,9 @@
     font-size:16px;line-height:1.5;
   }
   .qitem .num{font-weight:800;color:var(--pink-dark);margin-right:6px;}
+  .pool-item{background:#fff;border:2px solid var(--pink-soft);border-radius:14px;padding:12px;margin:8px 0;font-size:15px;line-height:1.5;cursor:pointer;transition:.15s;color:var(--ink);}
+  .pool-item.used{opacity:.38;cursor:not-allowed;text-decoration:line-through;}
+  .pool-item.sel{border-color:var(--pink-dark);background:var(--pink-soft);font-weight:600;}
 
   .progress-dots{display:flex;gap:8px;justify-content:center;margin:14px 0;}
   .dot-p{width:12px;height:12px;border-radius:50%;background:#ffd9e4;transition:.2s;}
@@ -188,7 +191,20 @@
       <span class="who" id="sec-who"></span>
       <button class="mini-switch" onclick="backCat()">← back</button>
     </div>
-    <div id="sec-questions"></div>
+    <div class="card">
+      <p class="label">Your 2 questions — <span id="sel-count">0</span> selected</p>
+      <p style="font-size:14px;color:var(--ink-soft);margin-bottom:10px;">
+        Tap questions below to pick 2, or let the game surprise you.
+      </p>
+      <div id="sec-questions" style="margin-bottom:10px;"></div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="surprisePick()" style="flex:1;font-size:14px;">Shuffle ↻ (no repeats)</button>
+      </div>
+    </div>
+    <div class="card" id="pool-holder">
+      <p class="label">Available questions</p>
+      <div id="pool"></div>
+    </div>
     <div class="card" style="border:2px dashed var(--pink);">
       <p class="label">Secret question (private)</p>
       <p style="font-size:14px;color:var(--ink-soft);margin-bottom:10px;">
@@ -281,14 +297,8 @@ const QBANK = {
     "What's a romantic gesture that never gets old to you?",
     "What does 'being serious with someone' actually look like to you?"
   ],
-  Us: [
-    "We both like mountains and nature — what would your ideal trip to one actually look like?",
-    "If we had a free weekend anywhere in Morocco, where would you want to go?",
-    "If you could pick one season to live in forever, which one and why?",
-    "What's something you hope we do together that we haven't done yet?"
-  ]
-};
-const CATS = ["Fun","Personal","Deep","Romantic","Us"];
+  };
+const CATS = ["Fun","Personal","Deep","Romantic"];
 
 /* ---------- STATE ---------- */
 let who = "boy";            // current answerer
@@ -320,25 +330,82 @@ function setCat(c){ cat=c; renderChips(); }
 function backCat(){ show('s-cat'); }
 
 /* ---------- SECRET ---------- */
+const _loadUsed = () => { try { return new Set(JSON.parse(sessionStorage.getItem('q3_used')||'[]')); } catch(e){ return new Set(); } };
+const _saveUsed = u => sessionStorage.setItem('q3_used', JSON.stringify([...u]));
+let USED = _loadUsed();
+
+function poolFor(cat){
+  if(cat==='Mix') return CATS.flatMap(c=>QBANK[c]);
+  return QBANK[cat] ? QBANK[cat].slice() : [];
+}
+function freshPool(pool){
+  const avail = pool.filter(q=>!USED.has(q));
+  if(avail.length) return avail;
+  // all used → fresh start
+  USED.clear(); _saveUsed(USED); return pool.slice();
+}
+function surprisePick(){
+  const available = freshPool(poolFor(cat));
+  if(available.length<2){ surprisePickForce(); return; }
+  const idxs = [];
+  while(idxs.length<2){ const j=Math.floor(Math.random()*available.length); if(!idxs.includes(j)) idxs.push(j); }
+  secQuestions = idxs.map(j=>available[j]);
+  renderPicked();
+}
+function surprisePickForce(){
+  // if fewer than 2 remain, reset used entirely
+  USED.clear(); _saveUsed(USED);
+  const pool = poolFor(cat);
+  const idxs = [];
+  while(idxs.length<2){ const j=Math.floor(Math.random()*pool.length); if(!idxs.includes(j)) idxs.push(j); }
+  secQuestions = idxs.map(j=>pool[j]);
+  renderPicked(); renderPool();
+}
 function goSecret(){
-  secQuestions = pickRandom(cat,2);
+  secQuestions = [];
   setWho('sec-who');
-  $('sec-questions').innerHTML = secQuestions.map((q,i)=>`<div class="qitem"><span class="num">Q${i+1}</span>${q}</div>`).join('');
   $('sec-input').value = "";
+  renderPicked();
+  renderPool();
   show('s-secret');
 }
-function pickRandom(cat,n){
-  let pool = cat==='Mix' ? CATS.slice(0,5).flatMap(c=>QBANK[c]) : QBANK[cat]; // Us stays out of Mix (too intimate for random)
-  pool = pool.slice();
-  const out=[];
-  for(let i=0;i<n&&pool.length;i++){const j=Math.floor(Math.random()*pool.length);out.push(pool.splice(j,1)[0]);}
-  return out;
+function renderPicked(){
+  $('sec-questions').innerHTML = secQuestions.length
+    ? secQuestions.slice(0,2).map((q,i)=>`<div class="qitem"><span class="num">Q${i+1}</span>${q} <span style="float:right;cursor:pointer;font-weight:800;color:var(--pink-dark);" onclick="removeSel(${i})">✕</span></div>`).join('')
+    : `<p style="font-size:14px;color:var(--ink-soft);">No questions picked yet.</p>`;
+  $('sel-count').textContent = secQuestions.length;
+}
+function renderPool(){
+  const pool = poolFor(cat);
+  if(!pool.length){ $('pool').innerHTML = ''; return; }
+  $('pool').innerHTML = pool.map(q=>{
+    const used = USED.has(q) && !secQuestions.includes(q);
+    const sel = secQuestions.includes(q);
+    const cl = (used?'used':'') + (sel?' sel':'');
+    return `<div class="pool-item ${cl}" onclick="toggleSel(${pool.indexOf(q)})">${q}</div>`;
+  }).join('');
+}
+function toggleSel(i){
+  const pool = poolFor(cat);
+  const q = pool[i];
+  if(USED.has(q) && !secQuestions.includes(q)) return; // already asked before
+  if(secQuestions.includes(q)){ secQuestions = secQuestions.filter(x=>x!==q); }
+  else if(secQuestions.length<2){ secQuestions.push(q); }
+  renderPicked(); renderPool();
+}
+function removeSel(i){
+  if(secQuestions[i]) secQuestions = secQuestions.filter((_,j)=>j!==i);
+  renderPicked(); renderPool();
 }
 
 /* ---------- PLAY ---------- */
 function goPlay(){
+  if(secQuestions.length!==2){ surprisePick(); }
   secretQ = $('sec-input').value.trim();
   if(!secretQ){ secretQ = "(no secret added — just the 2 questions)"; }
+  // mark used (global, no repeats across rounds/categories)
+  secQuestions.forEach(q=>USED.add(q));
+  _saveUsed(USED);
   deck = [...secQuestions.map(q=>({t:q,secret:false})), {t:secretQ, secret:true}];
   // shuffle
   for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
