@@ -228,13 +228,13 @@
     <p class="subtitle">Who's answering first?</p>
     <div class="characters">
       <div class="char blue" data-who="boy" onclick="pick('boy')">
-        <img class="char-pic" src="boy.png" alt="Boy Cat">
-        <div class="name">BOY CAT</div>
+        <img class="char-pic" src="boy.png" alt="Mohamed">
+        <div class="name">MOHAMED</div>
         <div class="role">the one answering</div>
       </div>
       <div class="char" data-who="girl" onclick="pick('girl')">
-        <img class="char-pic" src="girl.png" alt="Hello Kitty">
-        <div class="name">HELLO KITTY</div>
+        <img class="char-pic" src="girl.png" alt="Oumaima">
+        <div class="name">OUMAIMA</div>
         <div class="role">the one answering</div>
       </div>
     </div>
@@ -567,7 +567,7 @@ function renderQ(){
 function nextQ(){
   if(qIndex<2){ qIndex++; updateDots(); renderQ(); }
   else {
-    const other = who==='boy'?'Hello Kitty':'Boy Cat';
+    const other = who==='boy'?'Oumaima':'Mohamed';
     $('rev-who').textContent = other + " answers next";
     $('rev-other').textContent = other;
     show('s-reveal');
@@ -577,7 +577,7 @@ function restart(){ goPlay(); }
 
 /* ---------- HELPERS ---------- */
 function setWho(id){
-  const n = who==='boy' ? "Boy Cat" : "Hello Kitty";
+  const n = who==='boy' ? "Mohamed" : "Oumaima";
   $(id).textContent = n + " answers";
 }
 </script>
