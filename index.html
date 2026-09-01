@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3 Questions</title>
+<style>
+  /* ---------- HELLO KITTY SOFT STYLE ---------- */
+  :root{
+    --pink:#ffb7c9;
+    --pink-dark:#f48fb1;
+    --pink-soft:#ffe3ec;
+    --cream:#fff8f2;
+    --blue:#b3d8ff;
+    --blue-dark:#7fb3e8;
+    --blue-soft:#e3f0ff;
+    --ink:#5a4a52;
+    --ink-soft:#8a7882;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(180deg,#ffeef5 0%,#fde3ef 40%,#e3f0ff 100%);
+    min-height:100vh;color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;
+    padding:20px 16px 40px;
+  }
+  .wrap{max-width:440px;width:100%;}
+
+  /* bubbly title */
+  h1{
+    font-size:30px;font-weight:800;letter-spacing:.5px;
+    text-align:center;
+    background:linear-gradient(90deg,#f0629a,#f48fb1,#a2c8f0);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin:14px 0 4px;
+  }
+  .subtitle{text-align:center;color:var(--ink-soft);font-size:14px;margin-bottom:18px;}
+
+  /* character cards */
+  .characters{display:flex;gap:14px;justify-content:center;margin:8px 0 22px;}
+  .char{
+    background:var(--card);border-radius:24px;padding:18px 14px;text-align:center;
+    box-shadow:0 8px 20px rgba(240,98,154,.15);cursor:pointer;
+    border:3px solid transparent;transition:.2s;flex:1;max-width:160px;
+  }
+  .char:hover{transform:translateY(-2px);}
+  .char.selected{border-color:var(--pink-dark);}
+  .char.blue.selected{border-color:var(--blue-dark);}
+  .char.blue{box-shadow:0 8px 20px rgba(127,179,232,.18);}
+
+  /* kawaii face */
+  .face{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;position:relative;background:#fff;}
+  .face.pink{outline:3px solid var(--pink);}
+  .face.blue{outline:3px solid var(--blue);}
+  .ear{position:absolute;width:20px;height:20px;border-radius:50%;top:-2px;background:#fff;}
+  .ear.l{left:6px;}.ear.r{right:6px;}
+  .face.pink .ear{outline:3px solid var(--pink);}
+  .face.blue .ear{outline:3px solid var(--blue);}
+  .eye{position:absolute;top:38px;width:5px;height:8px;background:var(--ink);border-radius:50%;}
+  .eye.l{left:26px;}.eye.r{right:26px;}
+  .nose{position:absolute;top:48px;left:50%;transform:translateX(-50%);width:8px;height:6px;background:var(--pink-dark);border-radius:50%;}
+  .dot{position:absolute;top:60px;width:5px;height:5px;border-radius:50%;background:var(--ink);opacity:.85;}
+  .dot.whisker1{left:8px;}.dot.whisker2{left:22px;}.dot.whisker3{right:8px;}.dot.whisker4{right:22px;}
+  .bow{position:absolute;top:52px;left:50%;transform:translateX(-50%);font-size:18px;animation:bob 2.4s ease-in-out infinite;}
+  .char.blue .bow{display:none;}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-3px);}}
+  .char .name{font-weight:700;font-size:15px;}
+  .char .role{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;
+    background:linear-gradient(90deg,#f48fb1,#f0629a);
+    color:#fff;font-weight:700;font-size:17px;
+    padding:15px;border-radius:50px;letter-spacing:.3px;
+    box-shadow:0 8px 18px rgba(240,98,154,.35);transition:.2s;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn.blue{background:linear-gradient(90deg,#7fb3e8,#4f93d0);box-shadow:0 8px 18px rgba(79,147,208,.35);}
+  .btn.ghost{background:#fff;color:var(--pink-dark);box-shadow:none;border:2px solid var(--pink-soft);}
+
+  .screen{display:none;animation:in .3s ease;}
+  .screen.active{display:block;}
+  @keyframes in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  .card{
+    background:var(--card);border-radius:24px;padding:22px;
+    box-shadow:0 8px 20px rgba(240,98,154,.12);margin:10px 0;
+  }
+  .card p.label{font-size:12px;font-weight:700;color:var(--pink-dark);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+  .card p{font-size:17px;line-height:1.5;}
+
+  /* category chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0;}
+  .chip{
+    padding:12px 18px;border-radius:50px;background:#fff;font-weight:700;
+    border:2px solid var(--pink-soft);cursor:pointer;transition:.15s;font-size:15px;color:var(--ink);
+  }
+  .chip.selected{background:var(--pink);border-color:var(--pink-dark);color:#5a3038;}
+
+  input[type=text]{
+    width:100%;padding:14px;border-radius:16px;border:2px solid var(--pink-soft);
+    font-size:16px;background:#fffbfe;color:var(--ink);outline:none;
+  }
+  input[type=text]:focus{border-color:var(--pink-dark);}
+
+  .qitem{
+    background:var(--pink-soft);border-radius:16px;padding:14px;margin:10px 0;
+    font-size:16px;line-height:1.5;
+  }
+  .qitem .num{font-weight:800;color:var(--pink-dark);margin-right:6px;}
+
+  .progress-dots{display:flex;gap:8px;justify-content:center;margin:14px 0;}
+  .dot-p{width:12px;height:12px;border-radius:50%;background:#ffd9e4;transition:.2s;}
+  .dot-p.active{background:var(--pink-dark);transform:scale(1.2);}
+
+  .reveal{
+    background:linear-gradient(90deg,#ffe3ec,#fff3f8);
+    border-left:5px solid var(--pink-dark);border-radius:16px;padding:16px;
+    font-size:16px;line-height:1.5;margin:14px 0;
+  }
+  .reveal .tag{font-weight:800;color:var(--pink-dark);}
+  .btnrow{display:flex;gap:10px;margin-top:14px;}
+  .btnrow .btn{flex:1;}
+
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .header .who{font-weight:800;font-size:15px;}
+  .mini-switch{font-size:13px;color:var(--blue-dark);cursor:pointer;font-weight:700;background:none;border:none;}
+  .footnote{text-align:center;color:#c9a2b0;font-size:12px;margin-top:24px;}
+  .hero-gif{display:block;width:110px;height:auto;margin:10px auto 6px;border-radius:24px;animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <img class="hero-gif" src="kitty.gif" alt="">
+
+  <h1>3 Questions</h1>
+  <p class="subtitle">Two random questions + one secret. Read, answer, enjoy.</p>
+
+  <!-- SCREEN: choose character -->
+  <div id="s-choose" class="screen active">
+    <p class="subtitle">Who's answering first?</p>
+    <div class="characters">
+      <div class="char blue" data-who="boy" onclick="pick('boy')">
+        <div class="face blue">
+          <div class="ear l"></div><div class="ear r"></div>
+          <div class="eye l"></div><div class="eye r"></div>
+          <div class="nose"></div>
+          <div class="dot whisker1"></div><div class="dot whisker2"></div>
+          <div class="dot whisker3"></div><div class="dot whisker4"></div>
+        </div>
+        <div class="name">Boy Cat</div>
+        <div class="role" id="role-boy">The one answering</div>
+      </div>
+      <div class="char" data-who="girl" onclick="pick('girl')">
+        <div class="face pink">
+          <div class="ear l"></div><div class="ear r"></div>
+          <div class="eye l"></div><div class="eye r"></div>
+          <div class="nose"></div>
+          <div class="dot whisker1"></div><div class="dot whisker2"></div>
+          <div class="dot whisker3"></div><div class="dot whisker4"></div>
+          <div class="bow">🎀</div>
+        </div>
+        <div class="name">Hello Kitty</div>
+        <div class="role" id="role-girl">The one answering</div>
+      </div>
+    </div>
+    <button class="btn" onclick="goSetup()">Continue</button>
+  </div>
+
+  <!-- SCREEN: choose category -->
+  <div id="s-cat" class="screen">
+    <div class="header">
+      <span class="who" id="cat-who"></span>
+      <button class="mini-switch" onclick="backChoose()">← change</button>
+    </div>
+    <p class="subtitle">Pick a category for the 2 random questions</p>
+    <div class="chips" id="chips"></div>
+    <button class="btn" onclick="goSecret()" style="margin-top:6px;">Choose questions</button>
+  </div>
+
+  <!-- SCREEN: her secret question -->
+  <div id="s-secret" class="screen">
+    <div class="header">
+      <span class="who" id="sec-who"></span>
+      <button class="mini-switch" onclick="backCat()">← back</button>
+    </div>
+    <div id="sec-questions"></div>
+    <div class="card" style="border:2px dashed var(--pink);">
+      <p class="label">Secret question (private)</p>
+      <p style="font-size:14px;color:var(--ink-soft);margin-bottom:10px;">
+        The shy one types their own question here. Nobody sees it until shuffle.
+      </p>
+      <input type="text" id="sec-input" placeholder="Type a question... (kept hidden)">
+    </div>
+    <button class="btn" onclick="goPlay()" style="margin-top:12px;">Shuffle &amp; play</button>
+  </div>
+
+  <!-- SCREEN: play / reveal one by one -->
+  <div id="s-play" class="screen">
+    <div class="header">
+      <span class="who" id="play-who"></span>
+      <button class="mini-switch" onclick="restart()">↻ restart</button>
+    </div>
+    <div class="progress-dots" id="dots"></div>
+    <div class="card" style="min-height:150px;display:flex;flex-direction:column;justify-content:center;">
+      <p class="label">Question <span id="qnum"></span> of 3 → read it aloud to your partner</p>
+      <p id="question-card"></p>
+      <button class="btn" id="next-btn" style="margin-top:18px;" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: reveal secret -->
+  <div id="s-reveal" class="screen">
+    <div class="header"><span class="who" id="rev-who"></span></div>
+    <div class="reveal" id="secret-reveal"></div>
+    <p class="subtitle">Now switch — <span id="rev-other"></span> answers next!</p>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="backChoose()">New round</button>
+      <button class="btn" onclick="backChoose()">Again</button>
+    </div>
+    <div class="footnote">Secret questions stay on this phone only. Close the tab to clear them.</div>
+  </div>
+
+</div>
+
+<script>
+/* ---------- QUESTION BANK (English) ---------- */
+const QBANK = {
+  Fun: [
+    "What's the funniest thing that's ever happened to you in front of a crowd?",
+    "If you could only eat one Moroccan dish forever, which one?",
+    "What's the best prank you've ever pulled (or had pulled on you)?",
+    "What's a skill you have that most people would never guess?",
+    "If you won a free day with no responsibilities, what would you do first?",
+    "What song could you listen to on repeat without getting tired?",
+    "What's the most random thing in your phone's camera roll right now?",
+    "Heels, sneakers, or barefoot on the beach — which fits you most?",
+    "What's a movie or show you can rewatch over and over?",
+    "What would your ideal 'lazy Sunday' actually look like?"
+  ],
+  Personal: [
+    "What's something you've always wanted to learn but haven't yet?",
+    "What's one thing you really want to do this year?",
+    "What's a place in Morocco you've always wanted to visit?",
+    "What's your perfect weekend, step by step?",
+    "Are you more spontaneous or do you like planning everything?",
+    "What small thing makes you genuinely happy on an average day?",
+    "What's something about you that people don't notice at first?",
+    "What's an ordinary moment you'd relive if you could?",
+    "What's something you're proud of that you don't talk about much?",
+    "What kind of person do you feel most comfortable around?"
+  ],
+  Deep: [
+    "What does respect mean to you in a relationship?",
+    "What do you think makes two people genuinely compatible?",
+    "What's something you've changed your mind about as you've gotten older?",
+    "What makes you start feeling truly comfortable with someone?",
+    "What's a fear you have that most people probably don't know about?",
+    "What's one thing you want to make sure you never lose about yourself?",
+    "How do you handle it when you and someone you care about disagree?",
+    "What does 'home' feel like to you?",
+    "What's something you've learned about yourself in the last year?",
+    "What matters more to you: feeling safe or feeling free? Why?"
+  ],
+  Romantic: [
+    "Do you think feelings grow slowly, or can you know quickly that you like someone?",
+    "What's something small you find attractive in someone's personality?",
+    "What makes you feel appreciated by someone?",
+    "What's your idea of a perfect first date that actually happens twice?",
+    "What's something you'd want a partner to know about you without asking?",
+    "Would you rather have words of affirmation, actions, or time spent together?",
+    "What's one thing that would make you feel truly chosen by someone?",
+    "If you could know one thing about someone's feelings for you, what would it be?",
+    "What's a romantic gesture that never gets old to you?",
+    "What does 'being serious with someone' actually look like to you?"
+  ],
+  Us: [
+    "We both like mountains and nature — what would your ideal trip to one actually look like?",
+    "If we had a free weekend anywhere in Morocco, where would you want to go?",
+    "If you could pick one season to live in forever, which one and why?",
+    "What's something you hope we do together that we haven't done yet?"
+  ]
+};
+const CATS = ["Fun","Personal","Deep","Romantic","Us"];
+
+/* ---------- STATE ---------- */
+let who = "boy";            // current answerer
+let cat = "Fun";
+let secQuestions = [];      // 2 picked random
+let secretQ = "";           // hidden question
+let deck = [];              // 3 shuffled = secQuestions + secret
+let qIndex = 0;
+
+const $ = id => document.getElementById(id);
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');}
+
+/* ---------- CHOOSE ---------- */
+function pick(w){ who = w; document.querySelectorAll('.char').forEach(c=>c.classList.remove('selected')); document.querySelector(`.char[data-who="${w}"]`).classList.add('selected'); }
+function backChoose(){ show('s-choose'); }
+
+/* ---------- CATEGORY ---------- */
+function goSetup(){
+  if(!document.querySelector('.char.selected')){ pick(who); }
+  who = document.querySelector('.char.selected').dataset.who;
+  renderChips(); setWho('cat-who');
+  show('s-cat');
+}
+function renderChips(){
+  $('chips').innerHTML = CATS.map(c=>`<div class="chip ${c===cat?'selected':''}" onclick="setCat('${c}')">${c}</div>`).join('') 
+    + `<div class="chip ${cat==='Mix'?'selected':''}" onclick="setCat('Mix')">Mix</div>`;
+}
+function setCat(c){ cat=c; renderChips(); }
+function backCat(){ show('s-cat'); }
+
+/* ---------- SECRET ---------- */
+function goSecret(){
+  secQuestions = pickRandom(cat,2);
+  setWho('sec-who');
+  $('sec-questions').innerHTML = secQuestions.map((q,i)=>`<div class="qitem"><span class="num">Q${i+1}</span>${q}</div>`).join('');
+  $('sec-input').value = "";
+  show('s-secret');
+}
+function pickRandom(cat,n){
+  let pool = cat==='Mix' ? CATS.slice(0,5).flatMap(c=>QBANK[c]) : QBANK[cat]; // Us stays out of Mix (too intimate for random)
+  pool = pool.slice();
+  const out=[];
+  for(let i=0;i<n&&pool.length;i++){const j=Math.floor(Math.random()*pool.length);out.push(pool.splice(j,1)[0]);}
+  return out;
+}
+
+/* ---------- PLAY ---------- */
+function goPlay(){
+  secretQ = $('sec-input').value.trim();
+  if(!secretQ){ secretQ = "(no secret added — just the 2 questions)"; }
+  deck = [...secQuestions.map(q=>({t:q,secret:false})), {t:secretQ, secret:true}];
+  // shuffle
+  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+  qIndex = 0;
+  renderDots();
+  setWho('play-who');
+  renderQ();
+  show('s-play');
+}
+function renderDots(){ $('dots').innerHTML = Array(3).fill('<div class="dot-p"></div>').join(''); updateDots(); }
+function updateDots(){ document.querySelectorAll('#dots .dot-p').forEach((d,i)=>d.classList.toggle('active',i===qIndex)); }
+function renderQ(){
+  $('qnum').textContent = qIndex+1;
+  $('question-card').textContent = deck[qIndex].t;
+  $('next-btn').textContent = qIndex<2 ? "Next →" : "Reveal who asked it 🎀";
+}
+function nextQ(){
+  if(qIndex<2){ qIndex++; updateDots(); renderQ(); }
+  else { // reveal
+    const s = deck.find(d=>d.secret);
+    $('secret-reveal').innerHTML = `<span class="tag">🎀 The secret question was:</span><br><br>"${s.t}"`;
+    const other = who==='boy'?'Hello Kitty':'Boy Cat';
+    $('rev-who').textContent = other + " answers next";
+    $('rev-other').textContent = other;
+    show('s-reveal');
+  }
+}
+function restart(){ goPlay(); }
+
+/* ---------- HELPERS ---------- */
+function setWho(id){
+  const n = who==='boy' ? "Boy Cat" : "Hello Kitty";
+  $(id).textContent = n + " answers";
+  const btn = document.querySelector('#'+id).closest('.screen').querySelector('.btn');
+}
+</script>
+</body>
+</html>
