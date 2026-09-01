@@ -182,8 +182,7 @@
   .star{font-size:26px;color:var(--amber);padding:0 4px;animation:spark 1.1s ease-in-out infinite;filter:drop-shadow(0 2px 2px rgba(92,60,42,.3));}
   @keyframes spark{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
   .high-title{font-family:'Press Start 2P',monospace;font-size:13px;text-align:center;color:var(--pink-dark);margin:8px 0 2px;line-height:1.8;}
-  #hf-gif{width:100%;max-width:340px;margin:0 auto;display:block;}
-  #hf-video{width:100%;max-width:340px;margin:0 auto;display:none;background:transparent;}
+  #hf-video{width:100%;max-width:340px;margin:0 auto;display:block;border-radius:18px;background:#fff;box-shadow:0 10px 22px rgba(92,60,42,.12);}
 </style>
 </head>
 <body>
@@ -213,8 +212,7 @@
   <div id="s-fist" class="screen">
     <p class="high-title">★ HIGH FIVE ★</p>
     <p class="subtitle" style="font-size:14px;">Now your turn.</p>
-    <img id="hf-gif" src="highfive.gif" alt="high five">
-    <video id="hf-video" src="highfive.webm" autoplay muted loop playsinline style="width:100%;max-width:340px;margin:0 auto;display:none;background:transparent;"></video>
+    <video id="hf-video" src="highfive.mp4" autoplay muted loop playsinline preload="metadata" style="width:100%;max-width:340px;margin:0 auto;display:block;border-radius:18px;background:#fff;"></video>
     <div class="stage" id="stage-pixel" style="display:none;">
       <div class="cat"><div class="px blue"><div class="ne l"><div class="inne"></div></div><div class="ne r"><div class="inne"></div></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="wk wk1"></div><div class="wk wk2"></div><div class="wk wk3"></div><div class="wk wk4"></div><div class="wk wk5"></div><div class="wk wk6"></div><div class="cap"><div class="brim"></div></div></div></div>
       <div class="paw l"></div><div class="star">✋</div><div class="paw r"></div>
@@ -429,15 +427,8 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.re
 /* ---------- INTRO ---------- */
 function openBag(){
   show('s-fist');
-  const g=document.getElementById('hf-gif');
-  if(g) g.style.display='block';
-  // WebM with alpha works on desktop Chromium/Firefox (not iOS Safari).
-  const isIOS=/(iPhone|iPad|iPod)/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  const canWebM=document.createElement('video').canPlayType('video/webm;codecs="vp9"')!=='';
-  if(!isIOS && canWebM){
-    const v=document.getElementById('hf-video');
-    if(v){ g.style.display='none'; v.style.display='block'; v.currentTime=0; v.play().catch(()=>{ g.style.display='block'; v.style.display='none'; }); }
-  }
+  const v=document.getElementById('hf-video');
+  if(v){ v.style.display='block'; v.currentTime=0; v.play().catch(()=>{}); }
 }
 function startGame(){ pick('boy'); show('s-choose'); }
 
