@@ -473,7 +473,8 @@ function surprisePick(){
   const idxs = [];
   while(idxs.length<2){ const j=Math.floor(Math.random()*available.length); if(!idxs.includes(j)) idxs.push(j); }
   secQuestions = idxs.map(j=>available[j]);
-  renderPicked();
+  rememberPicks();
+  renderPicked(); renderPool();
 }
 function surprisePickForce(){
   USED.clear(); _saveUsed(USED);
@@ -481,10 +482,16 @@ function surprisePickForce(){
   const idxs = [];
   while(idxs.length<2){ const j=Math.floor(Math.random()*pool.length); if(!idxs.includes(j)) idxs.push(j); }
   secQuestions = idxs.map(j=>pool[j]);
+  rememberPicks();
   renderPicked(); renderPool();
 }
+/* remember picks per category so they stay when you go back/forth */
+const savedPicks = {};
+function rememberPicks(){ savedPicks[cat] = [...secQuestions]; }
 function goSecret(){
-  secQuestions = [];
+  // restore previously chosen questions for this category (kept + still clickable)
+  const prev = (savedPicks[cat]||[]).filter(q=>poolFor(cat).includes(q) && (!USED.has(q) || secQuestions.includes(q)));
+  secQuestions = prev;
   setWho('sec-who');
   $('sec-input').value = "";
   renderPicked();
@@ -493,7 +500,7 @@ function goSecret(){
 }
 function renderPicked(){
   $('sec-questions').innerHTML = secQuestions.length
-    ? secQuestions.slice(0,2).map((q,i)=>`<div class="qitem"><span class="num">Q${i+1}</span>${q} <span style="float:right;cursor:pointer;font-weight:800;color:var(--pink-dark);" onclick="removeSel(${i})">✕</span></div>`).join('')
+    ? secQuestions.slice(0,2).map((q,i)=>`<div class="qitem" style="cursor:pointer;" onclick="removeSel(${i})"><span class="num">Q${i+1}</span>${q} <span style="float:right;font-weight:800;color:var(--pink-dark);">✕</span></div>`).join('')
     : `<p style="font-size:14px;color:var(--ink-soft);">No questions picked yet.</p>`;
   $('sel-count').textContent = secQuestions.length;
 }
@@ -513,10 +520,13 @@ function toggleSel(i){
   if(USED.has(q) && !secQuestions.includes(q)) return;
   if(secQuestions.includes(q)){ secQuestions = secQuestions.filter(x=>x!==q); }
   else if(secQuestions.length<2){ secQuestions.push(q); }
+  else { secQuestions.shift(); secQuestions.push(q); } // full? swap the oldest with the new pick
+  rememberPicks();
   renderPicked(); renderPool();
 }
 function removeSel(i){
   if(secQuestions[i]) secQuestions = secQuestions.filter((_,j)=>j!==i);
+  rememberPicks();
   renderPicked(); renderPool();
 }
 
