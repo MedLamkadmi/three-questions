@@ -227,9 +227,18 @@
   <div id="s-mp-lobby" class="screen">
     <p class="high-title">★ PLAY ONLINE ★</p>
     <p class="subtitle" style="font-size:14px;">Two phones, one code. Ask, answer, swap.</p>
-    <div class="card" style="margin-top:14px;">
-      <p class="label">Your name</p>
-      <input type="text" id="mp-name" maxlength="20" placeholder="e.g. Mohamed">
+    <p class="label" style="margin-top:14px;">Who are you?</p>
+    <div class="characters" style="margin:4px 0 18px;">
+      <div class="char blue" data-who="boy" onclick="mpPick('boy')">
+        <img class="char-pic" src="boy.png" alt="Mohamed">
+        <div class="name">MOHAMED</div>
+        <div class="role">choose me</div>
+      </div>
+      <div class="char" data-who="girl" onclick="mpPick('girl')">
+        <img class="char-pic" src="girl.png" alt="Oumaima">
+        <div class="name">OUMAIMA</div>
+        <div class="role">choose me</div>
+      </div>
     </div>
     <div class="btnrow" style="margin-top:14px;">
       <button class="btn" onclick="mpCreateRoom()">Create a room</button>
@@ -658,6 +667,7 @@ function setWho(id){
    MULTIPLAYER (Firebase Realtime Database, zero server code)
    ============================================================ */
 MP.seat = null;          // 'A' | 'B'
+MP.which = null;         // 'boy' | 'girl'
 MP.name = '';
 MP.room = null;
 MP.myRef = null;         // reference to /rooms/{code}
@@ -697,7 +707,7 @@ function mpGenCode(){ return (Math.random().toString(36).slice(2,6)).toUpperCase
 /* ---------- CREATE / JOIN ---------- */
 async function mpCreateRoom(){
   const name = cleanupName();
-  if(!name) return alert('Enter your name first.');
+  if(!MP.which) return alert('Choose who you are first — Mohamed or Oumaima.');
   const code = mpGenCode();
   MP.init();
   const rdb = firebase.database();
@@ -710,7 +720,7 @@ async function mpCreateRoom(){
 
 async function mpJoinRoom(){
   const name = cleanupName();
-  if(!name) return alert('Enter your name first.');
+  if(!MP.which) return alert('Choose who you are first — Mohamed or Oumaima.');
   const code = $('mp-code').value.trim().toUpperCase();
   if(code.length!==4) return alert('Enter the 4-letter code.');
   MP.init();
@@ -724,10 +734,16 @@ async function mpJoinRoom(){
   mpEnterRoom(code, 'B', name);
 }
 
+function mpPick(w){
+  MP.which = w;
+  document.querySelectorAll('#s-mp-lobby .char').forEach(c=>c.classList.remove('selected'));
+  document.querySelector(`#s-mp-lobby .char[data-who="${w}"]`).classList.add('selected');
+}
+
 function cleanupName(){
-  const n = $('mp-name').value.trim().slice(0,20);
-  MP.name = n;
-  return n;
+  if(MP.which==='girl') MP.name = 'Oumaima';
+  else MP.name = 'Mohamed';
+  return MP.name;
 }
 
 function mpEnterRoom(code, seat, name){
