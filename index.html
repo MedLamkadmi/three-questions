@@ -159,6 +159,7 @@
 
   .btnrow{display:flex;gap:10px;margin-top:14px;}
   .btnrow .btn{flex:1;}
+  .divider{text-align:center;color:var(--ink-soft);font-size:13px;font-weight:700;margin:18px 0 4px;letter-spacing:.5px;}
 
   .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
   .header .who{font-weight:700;font-size:17px;color:var(--ink);}
@@ -219,6 +220,71 @@
       <div class="cat"><div class="px pink"><div class="ne l"><div class="inne"></div></div><div class="ne r"><div class="inne"></div></div><div class="eye l"></div><div class="eye r"></div><div class="nose"></div><div class="wk wk1"></div><div class="wk wk2"></div><div class="wk wk3"></div><div class="wk wk4"></div><div class="wk wk5"></div><div class="wk wk6"></div><div class="bow"><div class="l"></div><div class="r"></div><div class="c"></div></div></div></div>
     </div>
     <button class="btn blue" onclick="startGame()">Let's go ▶</button>
+    <button class="btn ghost" style="margin-top:10px;" onclick="mpOpenLobby()">🌐 Play online</button>
+  </div>
+
+  <!-- ============ MULTIPLAYER LOBBY ============ -->
+  <div id="s-mp-lobby" class="screen">
+    <p class="high-title">★ PLAY ONLINE ★</p>
+    <p class="subtitle" style="font-size:14px;">Two phones, one code. Ask, answer, swap.</p>
+    <div class="card" style="margin-top:14px;">
+      <p class="label">Your name</p>
+      <input type="text" id="mp-name" maxlength="20" placeholder="e.g. Mohamed">
+    </div>
+    <div class="btnrow" style="margin-top:14px;">
+      <button class="btn" onclick="mpCreateRoom()">Create a room</button>
+    </div>
+    <div class="divider">or join with a code</div>
+    <div class="btnrow">
+      <input type="text" id="mp-code" maxlength="4" placeholder="CODE" style="text-transform:uppercase;width:120px;text-align:center;letter-spacing:6px;font-family:'Press Start 2P';font-size:14px;">
+      <button class="btn ghost" onclick="mpJoinRoom()">Join</button>
+    </div>
+    <button class="btn ghost small" style="margin-top:16px;" onclick="show('s-fist')">← back</button>
+  </div>
+
+  <!-- ============ MULTIPLAYER WAITING / ACTION ============ -->
+  <div id="s-mp-play" class="screen">
+    <div class="header">
+      <span class="who" id="mp-who"></span>
+      <button class="mini-switch" onclick="mpLeave()">✕ leave</button>
+    </div>
+    <p class="high-title" id="mp-room-jumbo"></p>
+    <p class="subtitle" id="mp-status" style="font-size:14px;"></p>
+
+    <!-- asker setup -->
+    <div id="mp-setup" style="display:none;">
+      <div class="chips" id="mp-chips"></div>
+      <div class="card" style="margin-top:10px;">
+        <p class="label">Your 2 questions (<span id="mp-sel">0</span>)</p>
+        <div id="mp-picked"></div>
+        <button class="btn ghost small" style="margin:8px 0;" onclick="mpSurprise()">Shuffle ↻</button>
+      </div>
+      <div class="card">
+        <p class="label">Secret question (private — shown only when reached)</p>
+        <input type="text" id="mp-secret" placeholder="Type a question... (kept hidden)">
+      </div>
+      <button class="btn" style="margin-top:12px;" onclick="mpPass()">Pass to partner ▶</button>
+    </div>
+
+    <!-- answerer play-through -->
+    <div id="mp-answer" style="display:none;">
+      <div class="progress-dots" id="mp-dots"></div>
+      <div class="card" style="min-height:170px;display:flex;flex-direction:column;justify-content:center;">
+        <p class="label" id="mp-qlabel">Question 1 of 3</p>
+        <p id="mp-qcard" style="font-size:17px;"></p>
+        <button class="btn" id="mp-nextbtn" style="margin-top:18px;" onclick="mpNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- done -->
+    <div id="mp-done" style="display:none;">
+      <p class="subtitle" style="font-size:18px;margin:14px 0;">Both answered! 💕</p>
+      <p style="text-align:center;color:var(--ink-soft);font-size:14px;font-weight:600;margin-bottom:16px;">The secret one stays secret — that's the magic. 😉</p>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="mpNewRound()">New round</button>
+        <button class="btn" onclick="mpLeave()">Leave</button>
+      </div>
+    </div>
   </div>
 
   <!-- ============ SCREEN 2: CHOOSE CHARACTER ============ -->
@@ -309,7 +375,25 @@
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
+/* ============================================================
+   FIREBASE CONFIG — PASTE YOUR PROJECT KEYS HERE
+   (Settings ⚙ → Project settings → Your apps → Web )
+   Replace the 6 values below with yours.
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyByt3LApfRycvSF0cD5oMbd3sqiuP11SjQ",
+  authDomain: "three-questions-47f6a.firebaseapp.com",
+  databaseURL: "https://three-questions-47f6a-default-rtdb.firebaseio.com",
+  projectId: "three-questions-47f6a",
+  storageBucket: "three-questions-47f6a.firebasestorage.app",
+  messagingSenderId: "123755366844",
+  appId: "1:123755366844:web:7cd1cafbfe513ca33503b9"
+};
+const MP = {}; // multiplayer module
+
 /* ---------- SOFT CLOUDS + MAPLE LEAVES ON THE SIDES ---------- */
 (function(){
   const LAYER = document.getElementById('bg-layer');
@@ -568,6 +652,249 @@ function restart(){ goPlay(); }
 function setWho(id){
   const n = who==='boy' ? "Mohamed" : "Oumaima";
   $(id).textContent = n + " answers";
+}
+
+/* ============================================================
+   MULTIPLAYER (Firebase Realtime Database, zero server code)
+   ============================================================ */
+MP.seat = null;          // 'A' | 'B'
+MP.name = '';
+MP.room = null;
+MP.myRef = null;         // reference to /rooms/{code}
+MP.rm = null;            // cached room state
+MP.cat = 'Deep';
+MP.secQ = [];
+MP.secret = '';
+MP.qIndex = 0;
+MP.noop = false;         // suppress echo handler while writing own state
+
+const MP_URL_RE = /^https:\/\/.+\.firebaseio\.com$/;
+
+function mpReady(){
+  if(!FIREBASE_CONFIG) return false;
+  const url = FIREBASE_CONFIG.databaseURL || '';
+  if(url.indexOf('PASTE')>=0) return false;
+  if(!MP_URL_RE.test(url)) return false;
+  try { return !!(window.firebase && firebase.database); } catch(e){ return false; }
+}
+
+MP.init = function(){
+  if(MP.app) return;
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    MP.app = firebase.app();
+  }catch(e){ console.error('Firebase init failed:', e); }
+};
+
+function mpOpenLobby(){
+  if(!mpReady()){ alert("Online mode isn't set up yet — paste your Firebase keys in the script."); return; }
+  MP.init();
+  show('s-mp-lobby');
+}
+
+function mpGenCode(){ return (Math.random().toString(36).slice(2,6)).toUpperCase(); }
+
+/* ---------- CREATE / JOIN ---------- */
+async function mpCreateRoom(){
+  const name = cleanupName();
+  if(!name) return alert('Enter your name first.');
+  const code = mpGenCode();
+  MP.init();
+  const rdb = firebase.database();
+  const ref = rdb.ref('rooms/'+code);
+  const snap = await ref.child('created').once('value');
+  if(snap.val()){ return mpCreateRoom(); } // collision -> retry
+  await ref.set({ created: Date.now(), turn:'A', phase:'setupA', players:{ A:{name}, B:null }, deck:{} });
+  mpEnterRoom(code, 'A', name);
+}
+
+async function mpJoinRoom(){
+  const name = cleanupName();
+  if(!name) return alert('Enter your name first.');
+  const code = $('mp-code').value.trim().toUpperCase();
+  if(code.length!==4) return alert('Enter the 4-letter code.');
+  MP.init();
+  const rdb = firebase.database();
+  const ref = rdb.ref('rooms/'+code);
+  const snap = await ref.once('value');
+  const room = snap.val();
+  if(!room) return alert('No room found with that code.');
+  if(room.players.B) return alert('That room is already full.');
+  await ref.child('players/B').set({ name });
+  mpEnterRoom(code, 'B', name);
+}
+
+function cleanupName(){
+  const n = $('mp-name').value.trim().slice(0,20);
+  MP.name = n;
+  return n;
+}
+
+function mpEnterRoom(code, seat, name){
+  MP.seat = seat;
+  MP.room = code;
+  MP.init();
+  const rdb = firebase.database();
+  MP.myRef = rdb.ref('rooms/'+code);
+  // mark connected
+  MP.myRef.child('players/'+seat+'/connected').set(true);
+  MP.myRef.child('players/'+seat+'/name').set(name);
+  // on disconnect cleanup
+  if(navigator.onLine){
+    window.addEventListener('beforeunload', ()=> MP.myRef.child('players/'+seat).remove());
+  }
+  $('mp-room-jumbo').textContent = 'ROOM ' + code;
+  $('mp-who').textContent = seat + ' · ' + name;
+  MP.myRef.on('value', snap => {
+    const v = snap.val();
+    if(!v) { show('s-mp-lobby'); return; }
+    MP.rm = v;
+    mpRender(v);
+  });
+  show('s-mp-play');
+}
+
+/* ---------- RENDER (derives view from phase + seat) ---------- */
+function mpRender(room){
+  if(!room.players || !room.players[MP.seat]) return;
+  const me = room.players[MP.seat].name || MP.name;
+  const other = room.players[MP.seat==='A' ? 'B' : 'A'];
+  const otherName = (other && other.name) || 'partner';
+
+  // wait for opponent to join
+  const oppJoined = !!(room.players.A && room.players.B);
+  if(!oppJoined){
+    $('mp-status').textContent = 'Waiting for your partner to join…';
+    mpHideAll(); return;
+  }
+
+  const ph = room.phase;
+  const meSetup = (ph==='setupA' && MP.seat==='A') || (ph==='setupB' && MP.seat==='B');
+  const meAnswer = (ph==='answerB' && MP.seat==='B') || (ph==='answerA' && MP.seat==='A');
+
+  $('mp-who').textContent = MP.seat + ' · ' + me;
+  $('mp-room-jumbo').textContent = 'ROOM ' + MP.room;
+
+  if(ph==='done'){ mpShow('mp-done'); return; }
+
+  if(meSetup){
+    // I write the next round
+    mpShow('mp-setup');
+    $('mp-status').textContent = 'Ask, then pass to ' + otherName + '.';
+    mpRenderChips(); mpRenderPicked();
+  } else if(meAnswer){
+    mpShow('mp-answer');
+    $('mp-status').textContent = 'Answering ' + otherName + "'s questions — read them aloud.";
+    mpInitAnswer(room);
+  } else {
+    // opponent is setting up or answering
+    const oppSelf = ph==='setupA' || ph==='setupB';
+    $('mp-status').textContent = oppSelf
+      ? otherName + ' is preparing questions…'
+      : otherName + ' is answering…';
+    mpHideAll();
+  }
+}
+
+function mpHideAll(){
+  ['mp-setup','mp-answer','mp-done'].forEach(id=>$(id).style.display='none');
+}
+function mpShow(id){ ['mp-setup','mp-answer','mp-done'].forEach(x=>$(x).style.display = x===id?'block':'none'); }
+
+/* ---------- SETUP (asker) ---------- */
+function mpRenderChips(){
+  $('mp-chips').innerHTML = CATS.map(c=>`<div class="chip ${c===MP.cat?'selected':''}" onclick="mpSetCat('${c}')">${c}</div>`).join('')
+    + `<div class="chip ${MP.cat==='Mix'?'selected':''}" onclick="mpSetCat('Mix')">Mix</div>`;
+}
+function mpSetCat(c){ MP.cat=c; mpRenderChips(); mpRenderPicked(); }
+function mpPool(){ return MP.cat==='Mix' ? CATS.flatMap(c=>QBANK[c]) : (QBANK[MP.cat]||[]).slice(); }
+function mpRenderPicked(){
+  $('mp-sel').textContent = MP.secQ.length;
+  $('mp-picked').innerHTML = MP.secQ.length
+    ? MP.secQ.slice(0,2).map((q,i)=>`<div class="qitem" onclick="mpRemoveQ(${i})"><span class="num">Q${i+1}</span>${q} <span style="float:right;font-weight:800;color:var(--pink-dark);">✕</span></div>`).join('')
+    : '<p style="font-size:14px;color:var(--ink-soft);">No questions picked yet.</p>';
+  $('mp-chips').innerHTML = CATS.map(c=>`<div class="chip ${c===MP.cat?'selected':''}" onclick="mpSetCat('${c}')">${c}</div>`).join('')
+    + `<div class="chip ${MP.cat==='Mix'?'selected':''}" onclick="mpSetCat('Mix')">Mix</div>`;
+}
+function mpSurprise(){
+  const pool = mpPool();
+  const idx = new Set();
+  while(idx.size<2 && idx.size<pool.length){ idx.add(Math.floor(Math.random()*pool.length)); }
+  MP.secQ = [...idx].map(j=>pool[j]);
+  mpRenderPicked();
+}
+function mpRemoveQ(i){ MP.secQ = MP.secQ.filter((_,j)=>j!==i); mpRenderPicked(); }
+
+/* ---------- PASS → start answer phase ---------- */
+async function mpPass(){
+  if(MP.secQ.length!==2){ if(!confirm('Only ' + MP.secQ.length + ' question(s) picked. Pass anyway?')) return; }
+  MP.secret = $('mp-secret').value.trim() || '(no secret — just the 2 questions)';
+  const nextAnswerPhase = (MP.seat==='A') ? 'answerB' : 'answerA';
+  const nextSetupTurn  = (MP.seat==='A') ? 'B' : 'A';
+  MP.noop = true;
+  await MP.myRef.child('deck').set({
+    cat: MP.cat,
+    q: MP.secQ.slice(0,2).concat(MP.secret),
+    qIndex: 0
+  });
+  await MP.myRef.update({ phase: nextAnswerPhase, turn: nextSetupTurn });
+  MP.noop = false;
+  mpHideAll();
+  $('mp-status').textContent = 'Waiting for your partner to answer…';
+}
+
+/* ---------- ANSWER (answerer) ---------- */
+function mpInitAnswer(room){
+  const deck = room.deck || {};
+  const qs = (deck.q && deck.q.length>=3) ? deck.q : ["Question one", "Question two", "(no secret)"];
+  MP.qIndex = deck.qIndex || 0;
+  if(MP.qIndex<0) MP.qIndex=0;
+  if(MP.qIndex>qs.length) MP.qIndex=qs.length;
+  $('mp-qlabel').textContent = 'Question ' + (MP.qIndex+1) + ' of ' + qs.length;
+  $('mp-qcard').textContent = qs[MP.qIndex] || '';
+  $('mp-nextbtn').textContent = MP.qIndex < qs.length-1 ? 'Next →' : 'Finish';
+  // progress dots
+  const dots = [];
+  for(let i=0;i<qs.length;i++) dots.push(`<div class="dot-p ${i===MP.qIndex?'active':''}"></div>`);
+  $('mp-dots').innerHTML = dots.join('');
+}
+async function mpNext(){
+  if(!MP.rm || !MP.rm.deck) return;
+  const qs = (MP.rm.deck.q || []).length || 3;
+  MP.qIndex++;
+  if(MP.qIndex>=qs){
+    // this half-round done -> next setup phase
+    const mySeat = MP.seat;
+    const setupBy = mySeat;      // now MY turn to be asker
+    const setupPhase = (mySeat==='B') ? 'setupB' : 'setupA';
+    MP.noop = true;
+    await MP.myRef.update({ phase: setupPhase, turn: MP.seat });
+    // clear own picked pool for next setup
+    MP.secQ=[]; MP.secret='';
+    $('mp-secret').value='';
+    MP.noop = false;
+    $('mp-status').textContent = 'Your turn to ask — pick questions.';
+  } else {
+    MP.noop = true;
+    await MP.myRef.child('deck/qIndex').set(MP.qIndex);
+    MP.noop = false;
+  }
+}
+
+/* ---------- DONE / NEW ROUND ---------- */
+async function mpNewRound(){
+  MP.noop = true;
+  await MP.myRef.update({ phase:'setupA' });
+  MP.secQ=[]; MP.secret=''; $('mp-secret').value='';
+  MP.noop = false;
+}
+function mpLeave(){
+  if(MP.myRef && MP.seat) MP.myRef.child('players/'+MP.seat).remove();
+  if(MP.seat && MP.rm && (!MP.rm.players.A || !MP.rm.players.B)){
+    // empty room cleanup
+  }
+  MP.myRef && MP.myRef.off('value');
+  show('s-mp-lobby');
 }
 </script>
 </body>
