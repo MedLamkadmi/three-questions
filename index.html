@@ -263,6 +263,7 @@
     <!-- asker setup -->
     <div id="mp-setup" style="display:none;">
       <div class="chips" id="mp-chips"></div>
+      <p id="mp-pool-note" style="font-size:12px;color:var(--ink-soft);text-align:center;margin:6px 0;font-weight:600;"></p>
       <div class="card" style="margin-top:10px;">
         <p class="label">Your 2 questions (<span id="mp-sel">0</span>)</p>
         <div id="mp-picked"></div>
@@ -823,9 +824,21 @@ function mpRenderChips(){
     + `<div class="chip ${MP.cat==='Mix'?'selected':''}" onclick="mpSetCat('Mix')">Mix</div>`;
 }
 function mpSetCat(c){ MP.cat=c; mpRenderChips(); mpRenderPicked(); }
-function mpPool(){ return MP.cat==='Mix' ? CATS.flatMap(c=>QBANK[c]) : (QBANK[MP.cat]||[]).slice(); }
+function mpPool(){
+  const base = MP.cat==='Mix' ? CATS.flatMap(c=>QBANK[c]) : (QBANK[MP.cat]||[]).slice();
+  const used = (MP.rm && MP.rm.used) || [];
+  const avail = base.filter(q=>!used.includes(q));
+  return avail.length ? avail : base;   // exhausted → allow repeats so play never gets stuck
+}
 function mpRenderPicked(){
   $('mp-sel').textContent = MP.secQ.length;
+  const pool = mpPool();
+  const note = document.getElementById('mp-pool-note');
+  if(note){
+    note.textContent = pool.length
+      ? pool.length + ' question(s) still available — shared with ' + (MP.seat==='A'?'Oumaima':'Mohamed') + '.'
+      : 'All questions in this category used — resetting so you can keep playing.';
+  }
   $('mp-picked').innerHTML = MP.secQ.length
     ? MP.secQ.slice(0,2).map((q,i)=>`<div class="qitem" onclick="mpRemoveQ(${i})"><span class="num">Q${i+1}</span>${q} <span style="float:right;font-weight:800;color:var(--pink-dark);">✕</span></div>`).join('')
     : '<p style="font-size:14px;color:var(--ink-soft);">No questions picked yet.</p>';
@@ -853,6 +866,10 @@ async function mpPass(){
     q: MP.secQ.slice(0,2).concat(MP.secret),
     qIndex: 0
   });
+  // mark the 2 asked questions as used (shared by both players)
+  const prev = new Set((MP.rm && MP.rm.used) || []);
+  MP.secQ.slice(0,2).forEach(q=>prev.add(q));
+  await MP.myRef.child('used').set([...prev]);
   await MP.myRef.update({ phase: nextAnswerPhase, turn: nextSetupTurn });
   MP.noop = false;
   mpHideAll();
