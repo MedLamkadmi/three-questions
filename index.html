@@ -52,6 +52,17 @@
   }
   .wrap{position:relative;z-index:1;max-width:440px;width:100%;}
 
+  /* ============ GAME NAV BAR ============ */
+  #nav{display:flex;gap:6px;justify-content:center;margin:2px 0 6px;}
+  #nav .tab{
+    flex:1;border:none;cursor:pointer;background:#fff;border:2px solid #e8cfc0;border-radius:14px;
+    color:var(--ink-soft);font-family:'Pixelify Sans',sans-serif;font-weight:700;font-size:13px;
+    padding:10px 6px;transition:.12s;box-shadow:0 4px 8px rgba(92,60,42,.08);
+  }
+  #nav .tab:hover{transform:translateY(-1px);}
+  #nav .tab.active{background:linear-gradient(180deg,#f7a8bb,#e77a97);border-color:var(--pink-dark);color:#fff;box-shadow:0 6px 12px rgba(231,122,151,.3);}
+  #nav .tab .ico{font-size:15px;margin-right:4px;}
+
   h1{
     font-family:'Press Start 2P',monospace;
     font-size:19px;line-height:1.5;text-align:center;
@@ -86,6 +97,12 @@
   }
   .card p.label{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--pink-dark);margin-bottom:10px;line-height:1.6;}
   .card p{font-size:16px;line-height:1.5;font-weight:500;}
+
+  /* ============ NEVER HAVE I EVER ============ */
+  .card .label{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--pink-dark);margin-bottom:10px;line-height:1.6;text-align:center;}
+  .multi-meta{display:flex;justify-content:center;gap:14px;margin-top:16px;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--ink-soft);line-height:1.8;}
+  #nhie-react{text-align:center;margin:10px 0 0;font-size:14px;font-weight:600;line-height:1.5;min-height:20px;}
+  #nhie-react .big{font-size:26px;display:block;margin-bottom:4px;}
 
   /* ============ BAG (intro) ============ */
   .bag-stage{display:flex;flex-direction:column;align-items:center;margin:18px 0 10px;}
@@ -193,6 +210,13 @@
   <h1>3 QUESTIONS</h1>
   <p class="subtitle">Two + one secret. Autumn coziness.</p>
 
+  <!-- ============ GAME SWITCHER ============ -->
+  <nav id="nav">
+    <button class="tab" data-nav="3q" onclick="goGame('3q')"><span class="ico">🎀</span>3 Questions</button>
+    <button class="tab" data-nav="online" onclick="goGame('online')"><span class="ico">🌐</span>Play Online</button>
+    <button class="tab" data-nav="nhie" onclick="goGame('nhie')"><span class="ico">🍷</span>Never Have</button>
+  </nav>
+
   <!-- ============ SCREEN 0: OPEN THE BAG ============ -->
   <div id="s-bag" class="screen active">
     <div class="bag-stage">
@@ -288,6 +312,81 @@
         <button class="btn ghost" onclick="mpNewRound()">New round</button>
         <button class="btn" onclick="mpLeave()">Leave</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ NEVER HAVE I EVER (online) ============ -->
+  <div id="s-nhie-lobby" class="screen">
+    <p class="high-title">★ NEVER HAVE I EVER ★</p>
+    <p class="subtitle" style="font-size:14px;">Long-distance edition. Same prompt, both answer, reveal together. 🍿</p>
+    <p class="label" style="margin-top:14px;">Who are you?</p>
+    <div class="characters" style="margin:4px 0 18px;">
+      <div class="char blue" data-who="boy" onclick="nhiePick('boy')">
+        <img class="char-pic" src="boy.png" alt="Mohamed">
+        <div class="name">MOHAMED</div>
+        <div class="role">choose me</div>
+      </div>
+      <div class="char" data-who="girl" onclick="nhiePick('girl')">
+        <img class="char-pic" src="girl.png" alt="Oumaima">
+        <div class="name">OUMAIMA</div>
+        <div class="role">choose me</div>
+      </div>
+    </div>
+    <div class="btnrow" style="margin-top:14px;">
+      <button class="btn" onclick="nhieCreateRoom()">Create a room</button>
+    </div>
+    <div class="divider">or join with a code</div>
+    <div class="btnrow">
+      <input type="text" id="nhie-code" maxlength="4" placeholder="CODE" style="text-transform:uppercase;width:120px;text-align:center;letter-spacing:6px;font-family:'Press Start 2P';font-size:14px;">
+      <button class="btn ghost" onclick="nhieJoinRoom()">Join</button>
+    </div>
+    <button class="btn ghost small" style="margin-top:16px;" onclick="goGame('3q')">← back</button>
+  </div>
+
+  <!-- ============ NEVER HAVE I EVER: PLAY ============ -->
+  <div id="s-nhie-play" class="screen">
+    <div class="header">
+      <span class="who" id="nhie-who"></span>
+      <button class="mini-switch" onclick="nhieLeave()">✕ leave</button>
+    </div>
+    <p class="high-title" id="nhie-room-jumbo"></p>
+    <p class="subtitle" id="nhie-status" style="font-size:14px;"></p>
+
+    <!-- waiting for partner -->
+    <div id="nhie-wait" style="display:none;">
+      <div class="card" style="min-height:150px;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+        <p style="font-size:16px;font-weight:600;color:var(--ink-soft);">Waiting for your partner…</p>
+      </div>
+    </div>
+
+    <!-- reveal (both answered) -->
+    <div id="nhie-reveal" style="display:none;">
+      <div class="card" style="min-height:200px;display:flex;flex-direction:column;justify-content:center;text-align:center;">
+        <div id="nhie-reveal-emoji" style="font-size:44px;margin-bottom:8px;">🤭</div>
+        <p id="nhie-reveal-line" style="font-size:16px;font-weight:600;line-height:1.5;"></p>
+        <p id="nhie-reveal-sub" style="font-size:13px;color:var(--ink-soft);margin-top:10px;font-weight:600;"></p>
+      </div>
+      <div class="btnrow" style="margin-top:14px;">
+        <button class="btn" id="nhie-nextbtn" onclick="nhieNext()">Next 🎲</button>
+      </div>
+    </div>
+
+    <!-- answer prompt -->
+    <div id="nhie-play" style="display:none;">
+      <div class="card" style="min-height:200px;display:flex;flex-direction:column;justify-content:center;">
+        <p class="label" id="nhie-qlabel">Never have I ever...</p>
+        <p id="nhie-q" style="font-size:18px;font-weight:600;"></p>
+      </div>
+      <div class="btnrow" style="margin-top:14px;">
+        <button class="btn" onclick="nhieSetAnswer(true)">I have ✋</button>
+        <button class="btn ghost" onclick="nhieSetAnswer(false)">Never 🙅</button>
+      </div>
+      <p id="nhie-answered" style="text-align:center;font-size:13px;color:var(--ink-soft);margin-top:12px;font-weight:600;"></p>
+    </div>
+
+    <div class="multi-meta">
+      <span id="nhie-count">Q 1</span>
+      <span id="nhie-confess" style="color:var(--pink-dark);">confessions 0</span>
     </div>
   </div>
 
@@ -511,6 +610,14 @@ let qIndex = 0;
 
 const $ = id => document.getElementById(id);
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');}
+function setNav(key){
+  document.querySelectorAll('#nav .tab').forEach(t=>t.classList.toggle('active', t.dataset.nav===key));
+}
+function goGame(key){
+  if(key==='3q'){ show('s-bag'); setNav('3q'); }
+  else if(key==='online'){ mpOpenLobby(); setNav('online'); }
+  else if(key==='nhie'){ nhieOpen(); }
+}
 
 /* ---------- INTRO ---------- */
 function openBag(){
@@ -694,6 +801,7 @@ MP.init = function(){
 function mpOpenLobby(){
   if(!mpReady()){ alert("Online mode isn't set up yet — paste your Firebase keys in the script."); return; }
   MP.init();
+  setNav('online');
   show('s-mp-lobby');
 }
 
@@ -923,6 +1031,246 @@ function mpLeave(){
   MP.myRef && MP.myRef.off('value');
   show('s-mp-lobby');
 }
+
+/* ============================================================
+   NEVER HAVE I EVER (Firebase online, long-distance edition)
+   ============================================================ */
+const NHIE = [
+  "lied about liking a gift.",
+  "kept a screenshot of something someone texted you.",
+  "pretended to laugh at a joke I didn't understand.",
+  "called a teacher 'mum' or 'dad' in class.",
+  "sent a text to the wrong person and instantly regretted it.",
+  "gone to sleep at like 3am just scrolling. and hated myself after.",
+  "eaten too much of one thing and felt sick but kept going.",
+  "feigned interest in a hobby to look cool.",
+  "forgotten someone's name but nodded along anyway.",
+  "replied to the wrong chat by accident.",
+  "lied about my age at some point just to get in somewhere.",
+  "done karaoke in front of strangers.",
+  "stayed in a movie I was hating just because I'd paid.",
+  "wedged my phone camera to fake a good selfie.",
+  "laughed at a joke i didn't even catch. chaotically.", // light British-Pakistani slop vibes
+  "Googled something so stupid I felt my brain leave.",
+  "muted a group chat to escape the chaos.",
+  "left a video on 1.25x just to finish it faster.",
+  "judged a song then secretly loved it.",
+  "stayed up talking longer than I should've. and it was worth it."
+];
+const NHIE_BANK = NHIE.map((t,i)=>({t:'Never have I ever ' + t, i}));
+const NHIE_FALLBACK = [
+  "Never have I ever — faked an accent.",
+  "Never have I ever — said 'one more episode' 5 times.",
+  "Never have I ever — promised to go to the gym, then ghosted it."
+];
+
+const NH = {
+  seat: null, which: null, name:'', room:null, myRef:null, rm:null,
+  qIndex:0, noop:false, deck:[],
+  REACT: null
+};
+
+function nhieReady(){ return mpReady(); }
+
+function nhieOpen(){
+  if(!nhieReady()){ alert("Online mode isn't set up yet — paste your Firebase keys in the script."); return; }
+  MP.init();
+  setNav('nhie');
+  show('s-nhie-lobby');
+}
+function nhiePick(w){
+  NH.which = w;
+  document.querySelectorAll('#s-nhie-lobby .char').forEach(c=>c.classList.remove('selected'));
+  document.querySelector(`#s-nhie-lobby .char[data-who="${w}"]`).classList.add('selected');
+}
+function nhieCleanupName(){
+  NH.name = (NH.which==='girl') ? 'Oumaima' : 'Mohamed';
+  return NH.name;
+}
+
+async function nhieCreateRoom(){
+  const name = nhieCleanupName();
+  if(!NH.which) return alert('Choose who you are first — Mohamed or Oumaima.');
+  const code = mpGenCode();
+  MP.init();
+  const rdb = firebase.database();
+  const ref = rdb.ref('nhie/'+code);
+  const snap = await ref.child('created').once('value');
+  if(snap.val()){ return nhieCreateRoom(); }
+  const deck = nhieFreshDeck([]);
+  await ref.set({
+    created: Date.now(),
+    players:{ A:{name}, B:null },
+    qIndex:0,
+    deck,
+    q: deck[0],
+    used:[],
+    answers:{},
+    nextClicker:null
+  });
+  nhieEnterRoom(code,'A',name);
+}
+
+async function nhieJoinRoom(){
+  const name = nhieCleanupName();
+  if(!NH.which) return alert('Choose who you are first — Mohamed or Oumaima.');
+  const code = $('nhie-code').value.trim().toUpperCase();
+  if(code.length!==4) return alert('Enter the 4-letter code.');
+  MP.init();
+  const rdb = firebase.database();
+  const ref = rdb.ref('nhie/'+code);
+  const snap = await ref.once('value');
+  const room = snap.val();
+  if(!room) return alert('No room found with that code.');
+  if(room.players.B) return alert('That room is already full.');
+  await ref.child('players/B').set({ name });
+  nhieEnterRoom(code,'B',name);
+}
+
+function nhieEnterRoom(code, seat, name){
+  NH.seat = seat; NH.room = code;
+  MP.init();
+  const rdb = firebase.database();
+  NH.myRef = rdb.ref('nhie/'+code);
+  NH.myRef.child('players/'+seat+'/name').set(name);
+  NH.myRef.child('players/'+seat+'/connected').set(true);
+  if(navigator.onLine){
+    window.addEventListener('beforeunload', ()=> NH.myRef.child('players/'+seat).remove());
+  }
+  $('nhie-room-jumbo').textContent = 'ROOM ' + code;
+  $('nhie-who').textContent = seat + ' · ' + name;
+  NH.myRef.on('value', snap => {
+    const v = snap.val();
+    if(!v){ alert('Room closed.'); show('s-nhie-lobby'); return; }
+    NH.rm = v;
+    nhieRender(v);
+  });
+  show('s-nhie-play');
+}
+
+function nhieFreshDeck(used){
+  const set = new Set(used);
+  const avail = NHIE_BANK.filter(x=>!set.has(x.t));
+  const pool = avail.length ? avail : NHIE_BANK.slice();
+  const d = pool.slice();
+  for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+  return d.map(x=>x.t);
+}
+
+function nhieRender(room){
+  if(!room.players || !room.players[NH.seat]) return;
+  const me = room.players[NH.seat].name || NH.name;
+  const other = room.players[NH.seat==='A'?'B':'A'];
+  const otherName = (other && other.name) || 'partner';
+  $('nhie-who').textContent = NH.seat + ' · ' + me;
+  $('nhie-room-jumbo').textContent = 'ROOM ' + NH.room;
+
+  const oppJoined = !!(room.players.A && room.players.B);
+  const ans = room.answers || {};
+  const aReady = ans.A !== undefined, bReady = ans.B !== undefined;
+  const bothReady = aReady && bReady;
+
+  $('nhie-count').textContent = 'Q ' + ((room.qIndex||0)+1);
+  const conf = (ans.A===true?1:0)+(ans.B===true?1:0);
+  $('nhie-confess').textContent = 'confessions ' + (conf||0);
+
+  if(!oppJoined){
+    nhieParts('wait');
+    $('nhie-status').textContent = 'Waiting for your partner to join…';
+    return;
+  }
+
+  if(bothReady){
+    nhieParts('reveal');
+    $('nhie-status').textContent = otherName + ' is here — result!';
+    nhieRenderReveal(room, ans, otherName);
+    $('nhie-reveal').style.display='block';
+    return;
+  }
+
+  // some answered but not both — keep both able to answer
+  nhieParts('play');
+  $('nhie-status').textContent = 'Same prompt on both phones — answer it!';
+  $('nhie-qlabel').textContent = (room.qIndex||0)+1 + '  ·  Never have I ever...';
+  $('nhie-q').textContent = (room.q && room.q.replace(/^Never have I ever\s*/,'')) || '';
+  $('nhie-answered').textContent = '';
+  if(aReady || bReady){
+    const who = aReady ? (room.players.A.name||'partner') : (room.players.B.name||'partner');
+    $('nhie-status').textContent = who + ' already locked in. Answer yours to reveal!';
+  }
+  if(ans[NH.seat]!==undefined){
+    $('nhie-answered').textContent = 'Locked in ' + (ans[NH.seat]===true ? '✋ I have' : '🙅 never') + ' — waiting on your partner.';
+  }
+}
+
+function nhieParts(mode){
+  const map = {wait:'nhie-wait', reveal:'nhie-reveal', play:'nhie-play'};
+  ['nhie-wait','nhie-reveal','nhie-play'].forEach(id=>$(id).style.display='none');
+  $(map[mode]).style.display='block';
+}
+
+function nhieRenderReveal(room, ans, otherName){
+  const myAns = ans[NH.seat];
+  const theirAns = ans[NH.seat==='A'?'B':'A'];
+  const bothYes = myAns===true && theirAns===true;
+  const bothNo  = myAns===false && theirAns===false;
+  const mismatch = myAns !== theirAns;
+
+  let emoji, line, sub;
+  if(bothYes){
+    emoji='😂'; line='BOTH said I HAVE! Chaos confirmed.'; sub='Great minds confess together. One of you can spill first!';
+  } else if(bothNo){
+    emoji='😇'; line='BOTH said never have. Suspiciously innocent…'; sub='Fake! One of you owes a story anyway. 😏';
+  } else if(mismatch){
+    const confessor = (myAns===true) ? 'You' : otherName;
+    const whoLine = (myAns===true) ? 'You HAVE it' : (otherName + ' has it');
+    emoji='🍿'; line = whoLine + ' — the other says never.'; sub = confessor + ', spill the story!';
+  }
+  $('nhie-reveal-emoji').textContent = emoji||'🤭';
+  $('nhie-reveal-line').textContent = line || 'Revealed!';
+  $('nhie-reveal-sub').textContent = sub || 'Talk it out — that is the fun.';
+  $('nhie-nextbtn').textContent = 'Next 🎲';
+}
+
+async function nhieSetAnswer(val){
+  if(!NH.myRef || !NH.rm) return;
+  if(NH.rm.answers && NH.rm.answers[NH.seat]!==undefined) return; // already answered
+  NH.noop = true;
+  await NH.myRef.child('answers/'+NH.seat).set(val);
+  NH.noop = false;
+  $('nhie-answered').textContent = 'Locked in ✅ (waiting on your partner… …)';
+}
+
+async function nhieNext(){
+  if(!NH.myRef || !NH.rm || !NH.rm.q) return;
+  const idx = (NH.rm.qIndex||0)+1;
+  const deck = (NH.rm.deck && NH.rm.deck.length) ? NH.rm.deck : NHIE_BANK.map(x=>x.t);
+  const wasUsed = new Set(NH.rm.used||[]);
+  wasUsed.add(NH.rm.q);
+  const usedArr = [...wasUsed];
+  // pick next fresh
+  const fresh = NHIE_BANK.filter(x=>!usedArr.includes(x.t));
+  const pool = fresh.length ? fresh.map(x=>x.t) : NHIE_BANK.map(x=>x.t);
+  const nextQ = pool.length ? pool[Math.floor(Math.random()*pool.length)] : deck[Math.floor(Math.random()*deck.length)];
+  NH.noop = true;
+  await NH.myRef.update({
+    qIndex: idx,
+    q: nextQ,
+    answers: {},
+    used: usedArr
+  });
+  NH.noop = false;
+}
+
+function nhieLeave(){
+  if(NH.myRef && NH.seat) NH.myRef.child('players/'+NH.seat).remove();
+  NH.myRef && NH.myRef.off('value');
+  show('s-nhie-lobby');
+  setNav('nhie');
+}
+
+/* ============ INIT: highlight 3 Questions tab ============ */
+setNav('3q');
 </script>
 </body>
 </html>
